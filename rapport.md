@@ -100,7 +100,10 @@ Enfin, nous n'avons pas besoin de poser les toits sur une grille pour connaître
 La ligne de toits étant triée selon les x, on distingue plusieurs cas :
 - Si la liste est vide, on ajoute les points (x1, y1) et (x2, 0)
 - Sinon :
-   On parcourt la liste tant que x1 supérieur a x' avec x' l'abscisse de l'élément de la liste
-   - Si on arrive à la fin de la liste alors on ajoute les points (x1, y1) et (x2, 0)
-   - Si on a x1 < x' alors on ajoute le point (x1, y1) à la liste. 
-   Puis tant que x2 > x' on remplace le point (x', y') par (x', y1) et on continue de parcourir la liste.
+  Si x1 < au premier point alors on ajoute (x1, y1) au début
+  On itère ensuite sur les points de la ligne de toits
+  Tant que x1 > x' :
+    - Si on arrive au dernier point alors on ajoute les deux points (x1, y1) et (x2, 0) à la fin
+    - Sinon :
+      - Si x1 < l'abscisse du prochain point alors on ajoute le point (x1, y1)
+        - Si x2 < l'abscisse du prochain point alors on remplace son y par y1 et on ajoute le deuxième point (x2, 0) après le prochain point 

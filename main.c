@@ -60,8 +60,6 @@ roof_line_t *create_roof_line(int data[][3], int n)
       }
 
       node_t *temp = roof_line->root;
-      int added = 0;
-
       if (x1 < temp->x)
       {
          first_point->next = temp;
@@ -83,7 +81,7 @@ roof_line_t *create_roof_line(int data[][3], int n)
             {
                first_point->next = temp->next;
                temp->next = first_point;
-               if (x2 > temp->next->next->x)
+               if (x2 > first_point->next->next->x)
                {
                   first_point->next->next->y = y1;
                   node_t *second_point = (node_t *)malloc(sizeof(node_t));
