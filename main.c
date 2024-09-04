@@ -35,64 +35,70 @@ void print_roof_line(roof_line_t *roof_line)
    }
 }
 
+void add_point(roof_line_t *roof_line, int triplet[3])
+{
+   int x1 = triplet[0];
+   int y1 = triplet[1];
+   int x2 = triplet[2];
+   node_t *first_point = (node_t *)malloc(sizeof(node_t));
+   first_point->x = x1;
+   first_point->y = y1;
+
+   if (roof_line->root == NULL) // cas tableau vide
+   {
+      roof_line->root = first_point;
+      node_t *second_point = (node_t *)malloc(sizeof(node_t));
+      second_point->x = x2;
+      second_point->y = 0;
+      first_point->next = second_point;
+      return;
+   }
+
+   // cas tableau non vide
+   node_t *temp = roof_line->root;
+   if (x1 < temp->x) // ajout au début
+   {
+      first_point->next = temp;
+      roof_line->root = first_point;
+   }
+
+   // ajout du second à la fin
+   while (x1 > temp->x)
+   {
+      if (temp->next == NULL) // ajout à la fin
+      {
+         temp->next = first_point;
+         node_t *second_point = (node_t *)malloc(sizeof(node_t));
+         second_point->x = x2;
+         second_point->y = 0;
+         first_point->next = second_point;
+      }
+      else // ajout dedans
+      {
+         if (temp->next->x > x1) // insertion au milieu
+         {
+            first_point->next = temp->next;
+            temp->next = first_point;
+            if (x2 > first_point->next->next->x) // si on a un chevauchement
+            {
+               first_point->next->next->y = y1;
+               node_t *second_point = (node_t *)malloc(sizeof(node_t));
+               second_point->x = x2;
+               second_point->y = 0;
+               first_point->next->next->next = second_point;
+            }
+         }
+      }
+      temp = temp->next;
+   }
+}
+
 roof_line_t *create_roof_line(int data[][3], int n)
 {
    roof_line_t *roof_line = (roof_line_t *)malloc(sizeof(roof_line_t));
    for (int i = 0; i < n; i++)
    {
-
-      int x1 = data[i][0];
-      int y1 = data[i][1];
-      int x2 = data[i][2];
-      node_t *first_point = (node_t *)malloc(sizeof(node_t));
-      first_point->x = x1;
-      first_point->y = y1;
-
-      if (roof_line->root == NULL)
-      {
-         roof_line->root = first_point;
-
-         node_t *second_point = (node_t *)malloc(sizeof(node_t));
-         second_point->x = x2;
-         second_point->y = 0;
-         first_point->next = second_point;
-         continue;
-      }
-
-      node_t *temp = roof_line->root;
-      if (x1 < temp->x)
-      {
-         first_point->next = temp;
-         roof_line->root = first_point;
-      }
-      while (x1 > temp->x)
-      {
-         if (temp->next == NULL)
-         {
-            temp->next = first_point;
-            node_t *second_point = (node_t *)malloc(sizeof(node_t));
-            second_point->x = x2;
-            second_point->y = 0;
-            first_point->next = second_point;
-         }
-         else
-         {
-            if (temp->next->x > x1)
-            {
-               first_point->next = temp->next;
-               temp->next = first_point;
-               if (x2 > first_point->next->next->x)
-               {
-                  first_point->next->next->y = y1;
-                  node_t *second_point = (node_t *)malloc(sizeof(node_t));
-                  second_point->x = x2;
-                  second_point->y = 0;
-                  first_point->next->next->next = second_point;
-               }
-            }
-         }
-         temp = temp->next;
-      }
+      add_point(roof_line, data[i]);
    }
    return roof_line;
 }
