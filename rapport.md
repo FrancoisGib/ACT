@@ -97,13 +97,15 @@ Enfin, nous n'avons pas besoin de poser les toits sur une grille pour connaître
 
 ### Q3)
 
-La ligne de toits étant triée selon les x, on distingue plusieurs cas :
-- Si la liste est vide, on ajoute les points (x1, y1) et (x2, 0)
-- Sinon :
-  Si x1 < au premier point alors on ajoute (x1, y1) au début
-  On itère ensuite sur les points de la ligne de toits
-  Tant que x1 > x' :
-    - Si on arrive au dernier point alors on ajoute les deux points (x1, y1) et (x2, 0) à la fin
-    - Sinon :
-      - Si x1 < l'abscisse du prochain point alors on ajoute le point (x1, y1)
-        - Si x2 < l'abscisse du prochain point alors on remplace son y par y1 et on ajoute le deuxième point (x2, 0) après le prochain point 
+Pour chacun des triplets:
+  Si la liste est vide: on insert les deux point (x1, y1) et (x2, 0)
+  Sinon:
+    On parcourt le tableau des points tant que x1 > x':
+
+    Si x1 == x' alors on garde l'ordonnée la plus haute.
+
+    Si x1 < x' alors on ajoute le point (x1, y1) et on modifie le point suivant en (x', y1)
+
+    Ensuite, pour les deux cas, il faut regarder si le second point en abscisse x2 passe par des toits, si c'est le cas alors il faut supprimer tous les points ayant des ordonnées inférieures à y1 par y1.
+
+    Sinon c'est qu'on arrive à la fin et on a juste à insérer les deux points.
