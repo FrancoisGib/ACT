@@ -2,14 +2,14 @@
 
 void free_roof_line(roof_line_t *roof_line)
 {
-   node_t *node = roof_line->root;
-   node_t *next_node;
-   while (node != NULL)
+   node_t *node;
+   node_t *next_node = roof_line->root;
+   while ((node = next_node) != NULL)
    {
       next_node = node->next;
       free(node);
-      node = next_node;
    }
+   free(roof_line);
 }
 
 void print_roof_line(roof_line_t *roof_line)
@@ -25,9 +25,9 @@ void print_roof_line(roof_line_t *roof_line)
 
 roof_line_t *construct_line(int triplets[][3], int n)
 {
-   roof_line_t *roof_line = (roof_line_t *)malloc(sizeof(roof_line_t));
    if (n == 1)
    {
+      roof_line_t *roof_line = (roof_line_t *)malloc(sizeof(roof_line_t));
       node_t *first_point = (node_t *)malloc(sizeof(node_t));
       first_point->x = triplets[0][0];
       first_point->y = triplets[0][1];
@@ -44,6 +44,8 @@ roof_line_t *construct_line(int triplets[][3], int n)
       roof_line_t *left = construct_line(triplets, size);
       roof_line_t *right = construct_line(&triplets[size], n - size);
       roof_line_t *merged = fusion(left, right);
+      free_roof_line(left);
+      free_roof_line(right);
       return merged;
    }
 }
@@ -129,20 +131,16 @@ roof_line_t *fusion(roof_line_t *first_line, roof_line_t *second_line)
       fl_point = fl_point->next;
       current = current->next;
    }
-
-   free_roof_line(first_line);
-   free_roof_line(second_line);
    return roof_line;
 }
 
 roof_line_t *decompress_line(roof_line_t *line)
 {
    roof_line_t *svg = malloc(sizeof(roof_line_t));
-   node_t *node;
    node_t *current = line->root;
    node_t *svg_current;
    int pair = 0;
-   node = malloc(sizeof(node_t));
+   node_t *node = malloc(sizeof(node_t));
    node->x = current->x;
    node->y = 0;
    svg->root = node;
@@ -200,12 +198,11 @@ void generate_svg_file(char *filename, int triplets[][3], int n)
 
       node = node->next;
    }
+   free_roof_line(decompressed_line);
 
    FILE *file = fopen(filename, "w");
    fwrite(header, strlen(header), 1, file);
    fwrite(buffer, buf_length, 1, file);
    fwrite(footer, strlen(footer), 1, file);
    fclose(file);
-
-   free_roof_line(decompressed_line);
 }
