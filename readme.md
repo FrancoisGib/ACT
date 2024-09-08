@@ -109,3 +109,33 @@ Pour chacun des triplets:
     Ensuite, pour les deux cas, il faut regarder si le second point en abscisse x2 passe par des toits, si c'est le cas alors il faut supprimer tous les points ayant des ordonnées inférieures à y1 par y1.
 
     Sinon c'est qu'on arrive à la fin et on a juste à insérer les deux points.
+
+### Q4)
+
+Pour fusionner deux lignes, il faut itérer sur ces lignes jusqu'à ce que l'une ou l'autre soit vide.
+Dès que l'une des deux lignes est vide, on ajoute les derniers points de l'autre ligne non vide.
+Il faut stocker la hauteur courante des deux lignes pour savoir si les lignes de toits se traversent.
+On initialise donc ces deux hauteurs h1 et h2 à 0.
+
+On a ensuite 3 cas:
+  Si x1 < x2:
+    - alors l'abscisse sera x1
+    - on update h1 et on passe au prochain point de la première ligne.
+
+  Si x1 > x2:
+    - alors l'abscisse sera x2
+    - on update h2 et on passe au prochain point de la deuxième ligne.
+
+  Sinon:
+    - l'abscisse est la même donc x1 ou x2
+    - on update h1 et h2 et on passe au prochain point dans les deux lignes.
+
+  On doit ensuite vérifier que le point précédent ne possède pas la même ordonnée que le nouveau point
+  Si y_precedent != y_new:
+    - on ajoute le nouveau point avec pour ordonnée max(h1, h2)
+  Sinon: (exemple: précédent = (3, 7), nouveau = (5, 7))
+    - on ajoute pas le nouveau point et on libère sa mémoire
+
+### Q5)
+
+readme à faire
