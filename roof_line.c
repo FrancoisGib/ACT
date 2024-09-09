@@ -28,14 +28,15 @@ roof_line_t *construct_line(int triplets[][3], int n)
    if (n == 1)
    {
       roof_line_t *roof_line = (roof_line_t *)malloc(sizeof(roof_line_t));
-      node_t *first_point = (node_t *)malloc(sizeof(node_t));
+      node_t *first_point = malloc(sizeof(node_t));
       first_point->x = triplets[0][0];
       first_point->y = triplets[0][1];
-      node_t *second_point = (node_t *)malloc(sizeof(node_t));
+      node_t *second_point = malloc(sizeof(node_t));
       second_point->x = triplets[0][2];
       second_point->y = 0;
-      roof_line->root = first_point;
+      second_point->next = NULL;
       first_point->next = second_point;
+      roof_line->root = first_point;
       return roof_line;
    }
    else
@@ -50,13 +51,54 @@ roof_line_t *construct_line(int triplets[][3], int n)
    }
 }
 
+roof_line_t *create_roof_line_with_points(int tuples[][2], int n)
+{
+   roof_line_t *roof_line = malloc(sizeof(roof_line));
+   node_t *node;
+   node_t *current = NULL;
+   for (int i = 0; i < n; i++)
+   {
+      node_t *node = malloc(sizeof(node_t));
+      node->x = tuples[i][0];
+      node->y = tuples[i][1];
+      if (current == NULL)
+      {
+         current = node;
+         roof_line->root = current;
+      }
+      else
+      {
+         current->next = node;
+         current = current->next;
+      }
+   }
+   current->next = NULL; // can cause memory error if we don't initialize the last node's next to NULL
+   return roof_line;
+}
+
+int equals_lines(roof_line_t *first_line, roof_line_t *second_line)
+{
+   node_t *fl_point = first_line->root;
+   node_t *sl_point = second_line->root;
+   while (fl_point != NULL && sl_point != NULL)
+   {
+      if (!(fl_point->x == sl_point->x && fl_point->y == sl_point->y))
+      {
+         return 0;
+      }
+      fl_point = fl_point->next;
+      sl_point = sl_point->next;
+   }
+   return fl_point == NULL && sl_point == NULL;
+}
+
 roof_line_t *fusion(roof_line_t *first_line, roof_line_t *second_line)
 {
    roof_line_t *roof_line = (roof_line_t *)malloc(sizeof(roof_line_t));
    node_t *fl_point = first_line->root;
    node_t *sl_point = second_line->root;
 
-   int x1, x2, y1, y2;
+   int x1, x2, y1, y2, x, y;
 
    int h1 = 0;
    int h2 = 0;
@@ -74,42 +116,46 @@ roof_line_t *fusion(roof_line_t *first_line, roof_line_t *second_line)
 
       if (x1 < x2)
       {
-         node->x = x1;
+         x = x1;
          h1 = y1;
          fl_point = fl_point->next;
       }
       else if (x1 > x2)
       {
-         node->x = x2;
+         x = x2;
          h2 = y2;
          sl_point = sl_point->next;
       }
       else
       {
-         node->x = x1;
+         x = x1;
          h1 = y1;
          h2 = y2;
          fl_point = fl_point->next;
          sl_point = sl_point->next;
       }
-      node->y = MAX(h1, h2);
+      y = MAX(h1, h2);
 
       if (current == NULL)
       {
+         node = malloc(sizeof(node_t));
+         node->x = x;
+         node->y = y;
          current = node;
          roof_line->root = current;
       }
       else
       {
-         if (current->y != node->y)
+         if (current->y != y)
          {
+            node = malloc(sizeof(node_t));
+            node->x = x;
+            node->y = y;
             current->next = node;
             current = current->next;
          }
-         else // if the point before has the same y (example: (3,7) and (5,7), we juste keep the (3,7)), so we free the new node
-         {
-            free(node);
-         }
+         // if the point before has the same y (example: (3,7) and (5,7),
+         // we juste keep the (3,7)), so we don't need to add the new node
       }
    }
 
@@ -131,6 +177,7 @@ roof_line_t *fusion(roof_line_t *first_line, roof_line_t *second_line)
       fl_point = fl_point->next;
       current = current->next;
    }
+   current->next = NULL; // can cause memory error if the last node's next is not NULL
    return roof_line;
 }
 
@@ -140,11 +187,15 @@ roof_line_t *decompress_line(roof_line_t *line)
    node_t *current = line->root;
    node_t *svg_current;
    int pair = 0;
-   node_t *node = malloc(sizeof(node_t));
-   node->x = current->x;
-   node->y = 0;
-   svg->root = node;
-   svg_current = node;
+   node_t *node;
+   if (current != NULL)
+   {
+      node = malloc(sizeof(node_t));
+      node->x = current->x;
+      node->y = 0;
+      svg->root = node;
+      svg_current = node;
+   }
    while (current != NULL)
    {
       node = malloc(sizeof(node_t));
@@ -163,6 +214,7 @@ roof_line_t *decompress_line(roof_line_t *line)
       svg_current->next = node;
       svg_current = svg_current->next;
    }
+   svg_current->next = NULL; // can cause memory error if the last node's next is not NULL
    return svg;
 }
 

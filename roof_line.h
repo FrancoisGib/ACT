@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#define ROOF_LINE_INC
+
 #define MAX(x, y) (x) > (y) ? (x) : (y)
 
 typedef struct node_s
@@ -22,3 +24,5 @@ void free_roof_line(roof_line_t *roof_line);
 roof_line_t *fusion(roof_line_t *first_line, roof_line_t *second_line);
 roof_line_t *decompress_line(roof_line_t *line);
 void generate_svg_file(char *filename, int triplets[][3], int n);
+roof_line_t *create_roof_line_with_points(int tuples[][2], int n);
+int equals_lines(roof_line_t *first_line, roof_line_t *second_line);
