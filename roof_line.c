@@ -112,7 +112,6 @@ roof_line_t *fusion(roof_line_t *first_line, roof_line_t *second_line)
       y1 = fl_point->y;
       x2 = sl_point->x;
       y2 = sl_point->y;
-      node = malloc(sizeof(node_t));
 
       if (x1 < x2)
       {

@@ -23,7 +23,6 @@ int main()
 
     printf("Uncompressed line : ");
     print_roof_line(decompressed_line);
-
     free_roof_line(decompressed_line);
 
     generate_svg_file("file.html", data, n);
