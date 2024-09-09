@@ -1,5 +1,7 @@
 #include "roof_line.h"
 
+int rec = 0;
+
 void free_roof_line(roof_line_t *roof_line)
 {
    node_t *node;
@@ -25,6 +27,7 @@ void print_roof_line(roof_line_t *roof_line)
 
 roof_line_t *construct_line(int triplets[][3], int n)
 {
+   rec += n;
    if (n == 1)
    {
       roof_line_t *roof_line = (roof_line_t *)malloc(sizeof(roof_line_t));

@@ -2,8 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#define ROOF_LINE_INC
-
 #define MAX(x, y) (x) > (y) ? (x) : (y)
 
 typedef struct node_s

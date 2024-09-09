@@ -4,4 +4,9 @@ all: roof_line.h roof_line.c test.c
 	gcc -o test test.c roof_line.o
 
 clean:
-	rm -rf main roof_line.o test file.html
+	rm -rf main roof_line.o test file.html output.dat
+
+plot: plot_script output.dat test
+	sort -n output.dat > temp.dat
+	mv temp.dat output.dat
+	gnuplot plot_script

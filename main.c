@@ -1,5 +1,7 @@
 #include "roof_line.h"
 
+extern int rec;
+
 int main()
 {
     int data[][3] = {
@@ -26,5 +28,7 @@ int main()
     free_roof_line(decompressed_line);
 
     generate_svg_file("file.html", data, n);
+
+    printf("rec %d\n", rec);
     return 0;
 }
