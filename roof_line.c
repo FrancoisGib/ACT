@@ -111,6 +111,7 @@ roof_line_t *fusion(roof_line_t *first_line, roof_line_t *second_line)
 
    while (fl_point != NULL && sl_point != NULL)
    {
+      rec++;
       x1 = fl_point->x;
       y1 = fl_point->y;
       x2 = sl_point->x;
@@ -163,6 +164,7 @@ roof_line_t *fusion(roof_line_t *first_line, roof_line_t *second_line)
 
    while (sl_point != NULL)
    {
+      rec++;
       node = malloc(sizeof(node_t));
       node->x = sl_point->x;
       node->y = sl_point->y;
@@ -172,6 +174,7 @@ roof_line_t *fusion(roof_line_t *first_line, roof_line_t *second_line)
    }
    while (fl_point != NULL)
    {
+      rec++;
       node = malloc(sizeof(node_t));
       node->x = fl_point->x;
       node->y = fl_point->y;

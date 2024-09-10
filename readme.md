@@ -134,8 +134,26 @@ On a ensuite 3 cas:
   Si y_precedent != y_new:
     - on ajoute le nouveau point avec pour ordonnée max(h1, h2)
   Sinon: (exemple: précédent = (3, 7), nouveau = (5, 7))
-    - on ajoute pas le nouveau point et on libère sa mémoire
+    - on ajoute pas le nouveau point
 
 ### Q5)
 
-readme à faire
+Equation de recurrence : 
+
+$  
+T(n) = 
+     \begin{cases}
+       1 & \text{si } n = 1 \\
+       n + 2T(\frac{n}{2}) & \text{sinon}
+     \end{cases}
+$
+
+D'après le master theorem :
+
+$\log_2 2 = 1$ on est dans le cas $d = \log_b a$, on a donc une complexité en $O(n \log n)$
+
+On a en réalité un peu moins que $2n \log_2 n$ calculs (sans compter les opérations de comparaisons des points dans l'algorithme de fusion)
+
+On se rapproche beaucoup plus de $2n \log n$ car l'algorithme de fusion fait disparaitre certains points des lignes, ce qui fait qu'on ne re parcourt pas certains points dans les fusions plus grandes. On aurait réellement $2n \log_2 n$ calculs dans le pire des cas (que tous les points aient une abscisse différente).
+
+![Courbes](courbes.png)
