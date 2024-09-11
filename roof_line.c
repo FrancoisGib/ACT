@@ -1,6 +1,6 @@
 #include "roof_line.h"
 
-int rec = 0;
+int loop_count = 0;
 
 void free_roof_line(roof_line_t *roof_line)
 {
@@ -12,6 +12,18 @@ void free_roof_line(roof_line_t *roof_line)
       free(node);
    }
    free(roof_line);
+}
+
+int get_line_size(roof_line_t *roof_line)
+{
+   int size = 0;
+   node_t *node = roof_line->root;
+   while (node != NULL)
+   {
+      size++;
+      node = node->next;
+   }
+   return size;
 }
 
 void print_roof_line(roof_line_t *roof_line)
@@ -27,9 +39,9 @@ void print_roof_line(roof_line_t *roof_line)
 
 roof_line_t *construct_line(int triplets[][3], int n)
 {
-   rec += n;
    if (n == 1)
    {
+      loop_count++;
       roof_line_t *roof_line = (roof_line_t *)malloc(sizeof(roof_line_t));
       node_t *first_point = malloc(sizeof(node_t));
       first_point->x = triplets[0][0];
@@ -111,7 +123,8 @@ roof_line_t *fusion(roof_line_t *first_line, roof_line_t *second_line)
 
    while (fl_point != NULL && sl_point != NULL)
    {
-      rec++;
+      loop_count++;
+
       x1 = fl_point->x;
       y1 = fl_point->y;
       x2 = sl_point->x;
@@ -164,7 +177,7 @@ roof_line_t *fusion(roof_line_t *first_line, roof_line_t *second_line)
 
    while (sl_point != NULL)
    {
-      rec++;
+      loop_count++;
       node = malloc(sizeof(node_t));
       node->x = sl_point->x;
       node->y = sl_point->y;
@@ -174,7 +187,7 @@ roof_line_t *fusion(roof_line_t *first_line, roof_line_t *second_line)
    }
    while (fl_point != NULL)
    {
-      rec++;
+      loop_count++;
       node = malloc(sizeof(node_t));
       node->x = fl_point->x;
       node->y = fl_point->y;

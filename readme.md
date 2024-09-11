@@ -140,8 +140,7 @@ On a ensuite 3 cas:
 
 Equation de recurrence : 
 
-$  
-T(n) = 
+$  T(n) = 
      \begin{cases}
        1 & \text{si } n = 1 \\
        n + 2T(\frac{n}{2}) & \text{sinon}
@@ -152,8 +151,24 @@ D'après le master theorem :
 
 $\log_2 2 = 1$ on est dans le cas $d = \log_b a$, on a donc une complexité en $O(n \log n)$
 
-On a en réalité un peu moins que $2n \log_2 n$ calculs (sans compter les opérations de comparaisons des points dans l'algorithme de fusion)
+On a en réalité un peu moins de $n \log_2 n$ parcours des points car l'algorithme de fusion fait disparaitre certains points des lignes, ce qui fait qu'on ne re parcourt pas certains points dans les fusions de niveaux supérieurs. On aurait réellement $n \log_2 n$ calculs dans le pire des cas (que tous les points aient une abscisse différente ou que la ligne forme un escalier).
 
-On se rapproche beaucoup plus de $2n \log n$ car l'algorithme de fusion fait disparaitre certains points des lignes, ce qui fait qu'on ne re parcourt pas certains points dans les fusions plus grandes. On aurait réellement $2n \log_2 n$ calculs dans le pire des cas (que tous les points aient une abscisse différente).
+Calculs détaillés : 
+
+$ T(n) =  n + 2T(\frac{n}{2})  $
+
+Niveau 0 : n
+
+Niveau 1 : n/2 + n/2 = n
+
+Niveau 2 : n/4 + n/4 + n/4 + n/4 = n
+
+...
+
+$ T(n) = n + 2(\frac{n}{2}) + 4(\frac{n}{4}) + ... + 2^kT(\frac{n}{2^k}) $ avec $ k = \log_2 n $
+
+Ce qui donne :
+$ T(n) = \sum\limits_{i = 1}^{\log_2 (n)} n = n \log_2 n $
+
 
 ![Courbes](courbes.png)

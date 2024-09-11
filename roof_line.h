@@ -24,3 +24,4 @@ roof_line_t *decompress_line(roof_line_t *line);
 void generate_svg_file(char *filename, int triplets[][3], int n);
 roof_line_t *create_roof_line_with_points(int tuples[][2], int n);
 int equals_lines(roof_line_t *first_line, roof_line_t *second_line);
+int get_line_size(roof_line_t *roof_line);

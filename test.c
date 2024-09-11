@@ -1,6 +1,6 @@
 #include "roof_line.h"
 
-extern int rec;
+extern int loop_count;
 int test_number = 1;
 
 roof_line_t *read_test_file(char *filename, FILE *output)
@@ -21,7 +21,7 @@ roof_line_t *read_test_file(char *filename, FILE *output)
    roof_line_t *roof_line = construct_line(triplets, size);
    fclose(file);
    char buf[32];
-   sprintf(buf, "%d %d\n", size, rec);
+   sprintf(buf, "%d %d\n", size, loop_count);
    fwrite(buf, strlen(buf), 1, output);
    return roof_line;
 }
@@ -57,7 +57,7 @@ roof_line_t *read_answer_file(char *filename)
 
 void test_func(char *filename, FILE *file)
 {
-   rec = 0;
+   loop_count = 0;
    char input[strlen("tests/") + strlen(filename) + strlen("-input.txt")];
    strcpy(input, "tests/");
    strcpy(&input[strlen("tests/")], filename);
@@ -69,6 +69,7 @@ void test_func(char *filename, FILE *file)
    strcpy(&output[strlen("tests/") + strlen(filename)], "-output.txt");
 
    roof_line_t *test = read_test_file(input, file);
+   int compressed_line_size = get_line_size(test);
 
    roof_line_t *correct_answer = read_answer_file(output);
    printf("\nExpected : ");
@@ -85,7 +86,7 @@ void test_func(char *filename, FILE *file)
    free_roof_line(correct_answer);
    if (res)
    {
-      printf("\nTest %d : success, number of recursive call %d\n\n--------------------------------------\n", test_number, rec);
+      printf("\nTest %d : success, number of node traveled %d, compressed line size %d\n\n--------------------------------------\n", test_number, loop_count, compressed_line_size);
    }
    else
    {

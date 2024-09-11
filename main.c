@@ -1,6 +1,6 @@
 #include "roof_line.h"
 
-extern int rec;
+extern int loop_count;
 
 int main()
 {
@@ -29,6 +29,6 @@ int main()
 
     generate_svg_file("file.html", data, n);
 
-    printf("rec %d\n", rec);
+    printf("rec %d\n", loop_count);
     return 0;
 }
