@@ -41,7 +41,6 @@ roof_line_t *construct_line(int triplets[][3], int n)
 {
    if (n == 1)
    {
-      loop_count++;
       roof_line_t *roof_line = (roof_line_t *)malloc(sizeof(roof_line_t));
       node_t *first_point = malloc(sizeof(node_t));
       first_point->x = triplets[0][0];
@@ -123,7 +122,7 @@ roof_line_t *fusion(roof_line_t *first_line, roof_line_t *second_line)
 
    while (fl_point != NULL && sl_point != NULL)
    {
-      loop_count++;
+      // loop_count++;
 
       x1 = fl_point->x;
       y1 = fl_point->y;
@@ -164,6 +163,7 @@ roof_line_t *fusion(roof_line_t *first_line, roof_line_t *second_line)
       {
          if (current->y != y)
          {
+            loop_count++;
             node = malloc(sizeof(node_t));
             node->x = x;
             node->y = y;
@@ -175,26 +175,35 @@ roof_line_t *fusion(roof_line_t *first_line, roof_line_t *second_line)
       }
    }
 
+   // we add the end of one line if it's not empty
    while (sl_point != NULL)
    {
-      loop_count++;
-      node = malloc(sizeof(node_t));
-      node->x = sl_point->x;
-      node->y = sl_point->y;
-      current->next = node;
-      current = current->next;
+      if (current->y != sl_point->y)
+      {
+         loop_count++;
+         node = malloc(sizeof(node_t));
+         node->x = sl_point->x;
+         node->y = sl_point->y;
+         current->next = node;
+         current = current->next;
+      }
       sl_point = sl_point->next;
    }
+
    while (fl_point != NULL)
    {
-      loop_count++;
-      node = malloc(sizeof(node_t));
-      node->x = fl_point->x;
-      node->y = fl_point->y;
-      current->next = node;
+      if (current->y != fl_point->y)
+      {
+         loop_count++;
+         node = malloc(sizeof(node_t));
+         node->x = fl_point->x;
+         node->y = fl_point->y;
+         current->next = node;
+         current = current->next;
+      }
       fl_point = fl_point->next;
-      current = current->next;
    }
+
    current->next = NULL; // can cause memory error if the last node's next is not NULL
    return roof_line;
 }
@@ -244,7 +253,7 @@ void generate_svg_file(char *filename, int triplets[][3], int n)
 
    char header[] = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"600\" height=\"400\" viewBox=\"10 -200 200 200\"><polyline points=\"";
    char footer[] = "\" stroke=\"blue\" stroke-width=\"1\" fill=\"none\" transform=\"scale(1, -1)\"/></svg>";
-   char buffer[1024];
+   char buffer[n * 20];
 
    node_t *node = decompressed_line->root;
    int buf_length = 0;

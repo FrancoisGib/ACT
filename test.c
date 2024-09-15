@@ -17,7 +17,6 @@ roof_line_t *read_test_file(char *filename, FILE *output)
       triplets[i][1] = y;
       triplets[i][2] = x2;
    }
-   printf("\nsize: %d", size);
    roof_line_t *roof_line = construct_line(triplets, size);
    fclose(file);
    char buf[32];
@@ -98,6 +97,10 @@ void test_func(char *filename, FILE *file)
 int main()
 {
    FILE *output = fopen("output.dat", "w");
+   if (output == NULL)
+   {
+      return -1;
+   }
    test_func("tp1-la-ligne-des-toits-271915984", output);
    test_func("tp1-la-ligne-des-toits-620227487", output);
    test_func("tp1-la-ligne-des-toits-698049672", output);
