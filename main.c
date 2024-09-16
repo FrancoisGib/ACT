@@ -2,7 +2,7 @@
 
 extern int loop_count;
 
-roof_line_t *create_stairs_roof_line(int n)
+roof_line_t *create_stairs_roof_line(int n, FILE *output)
 {
     node_t *curent_node, node;
     int triplets[n][3];
@@ -16,6 +16,9 @@ roof_line_t *create_stairs_roof_line(int n)
     roof_line_t *roof_line = construct_line(triplets, n);
     printf("count: %d\n", loop_count);
     // print_roof_line(roof_line);
+    char buf[32];
+    sprintf(buf, "%d %d\n", n, loop_count);
+    fwrite(buf, strlen(buf), 1, output);
     free(roof_line);
     // generate_svg_file("svg.html", triplets, n);
 }
@@ -48,6 +51,11 @@ int main()
     generate_svg_file("file.html", data, n);
 
     printf("rec %d\n", loop_count);
-    create_stairs_roof_line(100000);
+    FILE *file = fopen("worst_case.dat", "w");
+    for (int i = 10000; i <= 500000; i += 10000)
+    {
+        create_stairs_roof_line(i, file);
+    }
+    fclose(file);
     return 0;
 }

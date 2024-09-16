@@ -122,8 +122,6 @@ roof_line_t *fusion(roof_line_t *first_line, roof_line_t *second_line)
 
    while (fl_point != NULL && sl_point != NULL)
    {
-      // loop_count++;
-
       x1 = fl_point->x;
       y1 = fl_point->y;
       x2 = sl_point->x;
