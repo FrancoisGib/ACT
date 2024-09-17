@@ -6,8 +6,8 @@ compil: roof_line.h roof_line.c test.c
 	gcc -o test test.c roof_line.o
 
 exec:
-	./test
 	./main
+	./test
 
 clean:
 	rm -rf main roof_line.o test file.html output.dat worst_case.dat
