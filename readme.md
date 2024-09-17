@@ -1,5 +1,3 @@
-
-
 # ACT 
 ## TP1: Diviser pour Régner : La ligne des toits
 
@@ -91,7 +89,7 @@ Enfin, nous n'avons pas besoin de poser les toits sur une grille pour connaître
 ### Q3)
 
 ```py
-def insert_building(roof_line, triplet) {
+def insert_building(roof_line, triplet):
    x1, h, x2 = triplet;
    new_line = new roof_line();
 
@@ -125,9 +123,7 @@ def insert_building(roof_line, triplet) {
       add_point(new_line, roof_line[i]);
       i++;
 
-
    return new_line;
-}
 ```
 
 On aurait ensuite une fonction prenant en paramètre plusieurs lignes de toits et qui construirait la ligne en ajoutant chacun des toits.
@@ -178,17 +174,16 @@ Niveau 2 : n/4 + n/4 + n/4 + n/4 = n
 
 ...
 
-$$
-T(n) = n + 2(\frac{n}{2}) + 4(\frac{n}{4}) + ... + 2^kT(\frac{n}{2^k}) $$ avec $k = \log_2 n$
+$$T(n) = n + 2(\frac{n}{2}) + 4(\frac{n}{4}) + ... + 2^kT(\frac{n}{2^k}) $$ avec $k = \log_2 n$
 
 Ce qui donne :
 $$T(n) = \sum\limits_{i = 1}^{\log_2 (n)} n = n \log_2 n$$
 
-On est donc bien dans une complexité de $O(n\log_2 n)$ dans le pire des cas.
+On a donc une complexité de $O(n\log n)$.
 
 Voici le graphique représentant la complexité de l'algorithme de fusion avec les fichiers de tests mis à disposition ainsi que la complexité dans le pire des cas (voir algorithme **create_stairs_roof_line** dans le fichier main.c).
 
-![Courbes](https://cdn.mathpix.com/snip/images/W1zhVpmkrGslfhfnWuxYo4dvE-V1O7pzo2KL1zKv7nI.original.fullsize.png)
+![](./courbes.png)
 
 Dans le cas ou vous avez besoin de re-construire ce graphique, vous pouvez utiliser la commande `make` qui va compiler le programme, exécuter le main et les tests et générer le graphique. Il vous faut gnuplot d'installé et utiliser la commande `gnuplot plot_script.gnu` ou alors si vous avez Docker vous pouvez générer le graphique en utilisant la commande :
 ```bash
