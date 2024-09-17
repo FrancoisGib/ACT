@@ -1,6 +1,6 @@
 #include "roof_line.h"
 
-int loop_count = 0;
+int node_insertion_count = 0;
 
 void free_roof_line(roof_line_t *roof_line)
 {
@@ -35,34 +35,6 @@ void print_roof_line(roof_line_t *roof_line)
       node = node->next;
    }
    printf("\n");
-}
-
-roof_line_t *construct_line(int triplets[][3], int n)
-{
-   if (n == 1)
-   {
-      roof_line_t *roof_line = (roof_line_t *)malloc(sizeof(roof_line_t));
-      node_t *first_point = malloc(sizeof(node_t));
-      first_point->x = triplets[0][0];
-      first_point->y = triplets[0][1];
-      node_t *second_point = malloc(sizeof(node_t));
-      second_point->x = triplets[0][2];
-      second_point->y = 0;
-      second_point->next = NULL;
-      first_point->next = second_point;
-      roof_line->root = first_point;
-      return roof_line;
-   }
-   else
-   {
-      int size = n / 2;
-      roof_line_t *left = construct_line(triplets, size);
-      roof_line_t *right = construct_line(&triplets[size], n - size);
-      roof_line_t *merged = fusion(left, right);
-      free_roof_line(left);
-      free_roof_line(right);
-      return merged;
-   }
 }
 
 roof_line_t *create_roof_line_with_points(int tuples[][2], int n)
@@ -104,106 +76,6 @@ int equals_lines(roof_line_t *first_line, roof_line_t *second_line)
       sl_point = sl_point->next;
    }
    return fl_point == NULL && sl_point == NULL;
-}
-
-roof_line_t *fusion(roof_line_t *first_line, roof_line_t *second_line)
-{
-   roof_line_t *roof_line = (roof_line_t *)malloc(sizeof(roof_line_t));
-   node_t *fl_point = first_line->root;
-   node_t *sl_point = second_line->root;
-
-   int x1, x2, y1, y2, x, y;
-
-   int h1 = 0;
-   int h2 = 0;
-
-   node_t *current = NULL;
-   node_t *node;
-
-   while (fl_point != NULL && sl_point != NULL)
-   {
-      x1 = fl_point->x;
-      y1 = fl_point->y;
-      x2 = sl_point->x;
-      y2 = sl_point->y;
-
-      if (x1 < x2)
-      {
-         x = x1;
-         h1 = y1;
-         fl_point = fl_point->next;
-      }
-      else if (x1 > x2)
-      {
-         x = x2;
-         h2 = y2;
-         sl_point = sl_point->next;
-      }
-      else
-      {
-         x = x1;
-         h1 = y1;
-         h2 = y2;
-         fl_point = fl_point->next;
-         sl_point = sl_point->next;
-      }
-      y = MAX(h1, h2);
-
-      if (current == NULL)
-      {
-         node = malloc(sizeof(node_t));
-         node->x = x;
-         node->y = y;
-         current = node;
-         roof_line->root = current;
-      }
-      else
-      {
-         if (current->y != y)
-         {
-            loop_count++;
-            node = malloc(sizeof(node_t));
-            node->x = x;
-            node->y = y;
-            current->next = node;
-            current = current->next;
-         }
-         // if the point before has the same y (example: (3,7) and (5,7),
-         // we juste keep the (3,7)), so we don't need to add the new node
-      }
-   }
-
-   // we add the end of one line if it's not empty
-   while (sl_point != NULL)
-   {
-      if (current->y != sl_point->y)
-      {
-         loop_count++;
-         node = malloc(sizeof(node_t));
-         node->x = sl_point->x;
-         node->y = sl_point->y;
-         current->next = node;
-         current = current->next;
-      }
-      sl_point = sl_point->next;
-   }
-
-   while (fl_point != NULL)
-   {
-      if (current->y != fl_point->y)
-      {
-         loop_count++;
-         node = malloc(sizeof(node_t));
-         node->x = fl_point->x;
-         node->y = fl_point->y;
-         current->next = node;
-         current = current->next;
-      }
-      fl_point = fl_point->next;
-   }
-
-   current->next = NULL; // can cause memory error if the last node's next is not NULL
-   return roof_line;
 }
 
 roof_line_t *decompress_line(roof_line_t *line)
@@ -282,4 +154,132 @@ void generate_svg_file(char *filename, int triplets[][3], int n)
    fwrite(buffer, buf_length, 1, file);
    fwrite(footer, strlen(footer), 1, file);
    fclose(file);
+}
+
+roof_line_t *fusion(roof_line_t *first_line, roof_line_t *second_line)
+{
+   roof_line_t *roof_line = (roof_line_t *)malloc(sizeof(roof_line_t));
+   node_t *fl_point = first_line->root;
+   node_t *sl_point = second_line->root;
+
+   int x1, x2, y1, y2, x, y;
+
+   int h1 = 0;
+   int h2 = 0;
+
+   node_t *current = NULL;
+   node_t *node;
+
+   while (fl_point != NULL && sl_point != NULL)
+   {
+      x1 = fl_point->x;
+      y1 = fl_point->y;
+      x2 = sl_point->x;
+      y2 = sl_point->y;
+
+      if (x1 < x2)
+      {
+         x = x1;
+         h1 = y1;
+         fl_point = fl_point->next;
+      }
+      else if (x1 > x2)
+      {
+         x = x2;
+         h2 = y2;
+         sl_point = sl_point->next;
+      }
+      else
+      {
+         x = x1;
+         h1 = y1;
+         h2 = y2;
+         fl_point = fl_point->next;
+         sl_point = sl_point->next;
+      }
+      y = MAX(h1, h2);
+
+      if (current == NULL)
+      {
+         node = malloc(sizeof(node_t));
+         node->x = x;
+         node->y = y;
+         current = node;
+         roof_line->root = current;
+      }
+      else
+      {
+         if (current->y != y)
+         {
+            node_insertion_count++;
+            node = malloc(sizeof(node_t));
+            node->x = x;
+            node->y = y;
+            current->next = node;
+            current = current->next;
+         }
+         // if the point before has the same y (example: (3,7) and (5,7),
+         // we juste keep the (3,7)), so we don't need to add the new node
+      }
+   }
+
+   // we add the end of one line if it's not empty
+   while (sl_point != NULL)
+   {
+      if (current->y != sl_point->y)
+      {
+         node_insertion_count++;
+         node = malloc(sizeof(node_t));
+         node->x = sl_point->x;
+         node->y = sl_point->y;
+         current->next = node;
+         current = current->next;
+      }
+      sl_point = sl_point->next;
+   }
+
+   while (fl_point != NULL)
+   {
+      if (current->y != fl_point->y)
+      {
+         node_insertion_count++;
+         node = malloc(sizeof(node_t));
+         node->x = fl_point->x;
+         node->y = fl_point->y;
+         current->next = node;
+         current = current->next;
+      }
+      fl_point = fl_point->next;
+   }
+
+   current->next = NULL; // can cause memory error if the last node's next is not NULL
+   return roof_line;
+}
+
+roof_line_t *construct_line(int triplets[][3], int n)
+{
+   if (n == 1)
+   {
+      roof_line_t *roof_line = (roof_line_t *)malloc(sizeof(roof_line_t));
+      node_t *first_point = malloc(sizeof(node_t));
+      first_point->x = triplets[0][0];
+      first_point->y = triplets[0][1];
+      node_t *second_point = malloc(sizeof(node_t));
+      second_point->x = triplets[0][2];
+      second_point->y = 0;
+      second_point->next = NULL;
+      first_point->next = second_point;
+      roof_line->root = first_point;
+      return roof_line;
+   }
+   else
+   {
+      int size = n / 2;
+      roof_line_t *left = construct_line(triplets, size);
+      roof_line_t *right = construct_line(&triplets[size], n - size);
+      roof_line_t *merged = fusion(left, right);
+      free_roof_line(left);
+      free_roof_line(right);
+      return merged;
+   }
 }

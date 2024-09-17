@@ -88,7 +88,7 @@ Pour généraliser, on part de l'origine:
 
 La complexité du parcours n'est donc plus entièrement liée au nombre de bâtiments mais plutôt à la longueur totale de la ligne de toits qu'on peut appeler l (cependant le nombre total d'opérations dépendra toujours du nombre de toits car il va impliquer plus de changements de directions).
 
-On aurait donc w * h * n + l calculs soit une complexité totale de θ(n + l).
+On aurait donc w * h * n + l calculs soit une complexité totale de θ(n * w * h + l).
 
 Cette méthode est facile à implémenter mais est très coûteuse en mémoire car on doit avoir une table de w * h cases de booléens.
 De plus, pour poser les bâtiments, on doit parcourir toute la table et ce en itérant sur les triplets, ce qui est loin d'être optimal.
@@ -97,46 +97,197 @@ Enfin, nous n'avons pas besoin de poser les toits sur une grille pour connaître
 
 ### Q3)
 
-Pour chacun des triplets:
-  Si la liste est vide: on insert les deux point (x1, y1) et (x2, 0)
-  Sinon:
-    On parcourt le tableau des points tant que x1 > x':
+```cpp
+def insert_building(roof_line, triplet) {
+    x1, h, x2 ← triplet;
+    new_line = new roof_line();
 
-    Si x1 == x' alors on garde l'ordonnée la plus haute.
+    i = 0;
+    n = size(roof_line);
 
-    Si x1 < x' alors on ajoute le point (x1, y1) et on modifie le point suivant en (x', y1)
+    // On ajoute les points avant le nouvel immeuble.
+    while (i < n and roof_line[i].x < x1) {
+      add_point(new_line, roof_line[i]);
+      i++;
+    }
 
-    Ensuite, pour les deux cas, il faut regarder si le second point en abscisse x2 passe par des toits, si c'est le cas alors il faut supprimer tous les points ayant des ordonnées inférieures à y1 par y1.
+    // On ajoute le point (x1, h) si la ligne est vide ou le point n'est pas caché par la ligne.
+    if (is_empty(new_line) or new_line[-1].y != h) {
+      add_point(new_line, (x1, h));
+    }
 
-    Sinon c'est qu'on arrive à la fin et on a juste à insérer les deux points.
+    // On parcourt les points existants de la ligne de toits qui sont couverts par l'immeuble.
+    while (i < n et roof_line[i].x <= x2) {
+        if (roof_line[i].y > h) {
+          add_point(new_line, roof_line[i]);
+        }
+        i++;
+    }
+
+    // On ajoute la fin de l'immeuble si on ne l'a pas encore ajouté.
+    if (new_line[-1].x != x2) {
+      add_point(new_line, (x2, 0));
+    }
+
+    // Enfin, on ajoute les points de la ligne de toits si il y en a encore.
+    while (i < n) {
+      add_point(new_line, roof_line[i]);
+      i++;
+    }
+
+    return new_line;
+}
+```
+
+On aurait ensuite une fonction prenant en paramètre plusieurs lignes de toits et qui construirait la ligne en ajoutant chacun des toits.
+
+On parcourt tous les points de la ligne de toits actuelle pour insérer l'immeuble. Si n est le nombre de points dans la ligne de toits, l'insertion d'un immeuble est donc en $ O(n) $.
+Si on a m immeubles, chacun étant inséré dans une ligne de toits pouvant avoir jusqu'à n points, la complexité totale est de l'ordre de $ O(m * n) $, où m est le nombre d'immeubles et n est la taille moyenne de la ligne de toits à chaque étape.
 
 ### Q4)
 
 Pour fusionner deux lignes, il faut itérer sur ces lignes jusqu'à ce que l'une ou l'autre soit vide.
-Dès que l'une des deux lignes est vide, on ajoute les derniers points de l'autre ligne non vide.
-Il faut stocker la hauteur courante des deux lignes pour savoir si les lignes de toits se traversent.
-On initialise donc ces deux hauteurs h1 et h2 à 0.
+Il faut stocker les deux hauteurs courantes des lignes et toujours ajouter les points avec la hauteur maximale des deux lignes mais en faisant attention à n'ajouter un point que si la hauteur à changé (par exemple au lieu d'ajouter les points (10, 15), (12, 15), on ajoute que (10, 15)).
 
-On a ensuite 3 cas:
-  Si x1 < x2:
-    - alors l'abscisse sera x1
-    - on update h1 et on passe au prochain point de la première ligne.
+```c
+roof_line_t *fusion(roof_line_t *first_line, roof_line_t *second_line)
+{
+   roof_line_t *roof_line = (roof_line_t *)malloc(sizeof(roof_line_t));
+   node_t *fl_point = first_line->root;
+   node_t *sl_point = second_line->root;
 
-  Si x1 > x2:
-    - alors l'abscisse sera x2
-    - on update h2 et on passe au prochain point de la deuxième ligne.
+   int x1, x2, y1, y2, x, y;
 
-  Sinon:
-    - l'abscisse est la même donc x1 ou x2
-    - on update h1 et h2 et on passe au prochain point dans les deux lignes.
+   int h1 = 0;
+   int h2 = 0;
 
-  On doit ensuite vérifier que le point précédent ne possède pas la même ordonnée que le nouveau point
-  Si y_precedent != y_new:
-    - on ajoute le nouveau point avec pour ordonnée max(h1, h2)
-  Sinon: (exemple: précédent = (3, 7), nouveau = (5, 7))
-    - on ajoute pas le nouveau point
+   node_t *current = NULL;
+   node_t *node;
+
+   while (fl_point != NULL && sl_point != NULL)
+   {
+      x1 = fl_point->x;
+      y1 = fl_point->y;
+      x2 = sl_point->x;
+      y2 = sl_point->y;
+
+      if (x1 < x2)
+      {
+         x = x1;
+         h1 = y1;
+         fl_point = fl_point->next;
+      }
+      else if (x1 > x2)
+      {
+         x = x2;
+         h2 = y2;
+         sl_point = sl_point->next;
+      }
+      else
+      {
+         x = x1;
+         h1 = y1;
+         h2 = y2;
+         fl_point = fl_point->next;
+         sl_point = sl_point->next;
+      }
+      y = MAX(h1, h2);
+
+      if (current == NULL)
+      {
+         node = malloc(sizeof(node_t));
+         node->x = x;
+         node->y = y;
+         current = node;
+         roof_line->root = current;
+      }
+      else
+      {
+         if (current->y != y)
+         {
+            node_insertion_count++;
+            node = malloc(sizeof(node_t));
+            node->x = x;
+            node->y = y;
+            current->next = node;
+            current = current->next;
+         }
+         // if the point before has the same y (example: (3,7) and (5,7),
+         // we juste keep the (3,7)), so we don't need to add the new node
+      }
+   }
+
+   // we add the end of one line if it's not empty
+   while (sl_point != NULL)
+   {
+      if (current->y != sl_point->y)
+      {
+         node_insertion_count++;
+         node = malloc(sizeof(node_t));
+         node->x = sl_point->x;
+         node->y = sl_point->y;
+         current->next = node;
+         current = current->next;
+      }
+      sl_point = sl_point->next;
+   }
+
+   while (fl_point != NULL)
+   {
+      if (current->y != fl_point->y)
+      {
+         node_insertion_count++;
+         node = malloc(sizeof(node_t));
+         node->x = fl_point->x;
+         node->y = fl_point->y;
+         current->next = node;
+         current = current->next;
+      }
+      fl_point = fl_point->next;
+   }
+
+   current->next = NULL; // can cause memory error if the last node's next is not NULL
+   return roof_line;
+}
+```
+L'algorithme est également à la fin du fichier roof_line.c, avant la fonction create_roof_line.
 
 ### Q5)
+
+Pour créer une ligne de tois avec l'algorithme de fusion, on doit diviser tous les batiments jusqu'à en avoir un seul, ce batiment sera donc une ligne de toits ayant seulement deux points (x1, h) et (x2, 0).
+On reconstruit ensuite la ligne de tois en fusionnant toutes les lignes deux à deux avec leur longueur qui va doubler à chaque fois dans le pire des cas (des points vont disparaître).
+
+```c
+roof_line_t *construct_line(int triplets[][3], int n)
+{
+   if (n == 1)
+   {
+      roof_line_t *roof_line = (roof_line_t *)malloc(sizeof(roof_line_t));
+      node_t *first_point = malloc(sizeof(node_t));
+      first_point->x = triplets[0][0];
+      first_point->y = triplets[0][1];
+      node_t *second_point = malloc(sizeof(node_t));
+      second_point->x = triplets[0][2];
+      second_point->y = 0;
+      second_point->next = NULL;
+      first_point->next = second_point;
+      roof_line->root = first_point;
+      return roof_line;
+   }
+   else
+   {
+      int size = n / 2;
+      roof_line_t *left = construct_line(triplets, size);
+      roof_line_t *right = construct_line(&triplets[size], n - size);
+      roof_line_t *merged = fusion(left, right);
+      free_roof_line(left);
+      free_roof_line(right);
+      return merged;
+   }
+}
+```
+
+Pour le calcul de complexité j'ai décidé de compter le nombre d'ajouts de points dans les lignes de toits.
 
 Equation de recurrence : 
 
@@ -171,4 +322,13 @@ Ce qui donne :
 $ T(n) = \sum\limits_{i = 1}^{\log_2 (n)} n = n \log_2 n $
 
 
+Voici le graphique représentant la complexité de l'algorithme de fusion avec les fichiers de tests mis à disposition ainsi que la complexité dans le pire des cas (voir algorithme create_stairs_roof_line dans le fichier main.c).
+
 ![Courbes](courbes.png)
+
+Pour construire ce graphique, vous pouvez utiliser la commande ```make``` qui va compiler le programme, exécuter le main et les tests et générer le graphique. Il vous faut gnuplot d'installer ou alors vous pouvez utiliser Docker pour générer le graphique en utilisant la commande :
+```bash
+docker run --rm -v $(pwd):/work remuslazar/gnuplot plot_script.gnu
+```
+
+Il est aussi possible de générer le fichier svg correspondant à la ligne de toits, pour avoir un exemple, il faut décommenter une partie du fichier main.c.

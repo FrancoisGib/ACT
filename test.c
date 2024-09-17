@@ -1,6 +1,6 @@
 #include "roof_line.h"
 
-extern int loop_count;
+extern int node_insertion_count;
 int test_number = 1;
 
 roof_line_t *read_test_file(char *filename, FILE *output)
@@ -20,7 +20,7 @@ roof_line_t *read_test_file(char *filename, FILE *output)
    roof_line_t *roof_line = construct_line(triplets, size);
    fclose(file);
    char buf[32];
-   sprintf(buf, "%d %d\n", size, loop_count);
+   sprintf(buf, "%d %d\n", size, node_insertion_count);
    fwrite(buf, strlen(buf), 1, output);
    return roof_line;
 }
@@ -56,7 +56,7 @@ roof_line_t *read_answer_file(char *filename)
 
 void test_func(char *filename, FILE *file)
 {
-   loop_count = 0;
+   node_insertion_count = 0;
    char input[strlen("tests/") + strlen(filename) + strlen("-input.txt")];
    strcpy(input, "tests/");
    strcpy(&input[strlen("tests/")], filename);
@@ -85,7 +85,7 @@ void test_func(char *filename, FILE *file)
    free_roof_line(correct_answer);
    if (res)
    {
-      printf("\nTest %d : success, number of node traveled %d, compressed line size %d\n\n--------------------------------------\n", test_number, loop_count, compressed_line_size);
+      printf("\nTest %d : success, number of node traveled %d, compressed line size %d\n\n--------------------------------------\n", test_number, node_insertion_count, compressed_line_size);
    }
    else
    {
@@ -97,10 +97,6 @@ void test_func(char *filename, FILE *file)
 int main()
 {
    FILE *output = fopen("output.dat", "w");
-   if (output == NULL)
-   {
-      return -1;
-   }
    test_func("tp1-la-ligne-des-toits-271915984", output);
    test_func("tp1-la-ligne-des-toits-620227487", output);
    test_func("tp1-la-ligne-des-toits-698049672", output);
