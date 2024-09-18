@@ -181,7 +181,7 @@ $$T(n) = \sum\limits_{i = 1}^{\log_2 (n)} n = n \log_2 n$$
 
 On a donc une complexité de $O(n\log n)$.
 
-Voici le graphique représentant la complexité de l'algorithme de fusion avec les fichiers de tests mis à disposition ainsi que la complexité dans le pire des cas (voir algorithme **create_stairs_roof_line** dans le fichier main.c).
+Voici le graphique représentant la complexité de l'algorithme de construction de lignes avec les fichiers de tests mis à disposition ainsi que la complexité dans le pire des cas (voir algorithme **create_stairs_roof_line** dans le fichier main.c).
 
 ![](./courbes.png)
 
