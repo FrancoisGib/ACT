@@ -16,8 +16,7 @@ roof_line_t *create_worst_case_roof_line(int n, FILE *output)
     char buf[32];
     sprintf(buf, "%d %d\n", n, operations_count);
     fwrite(buf, strlen(buf), 1, output);
-
-    free(roof_line);
+    free_roof_line(roof_line);
     printf("Insertions count for n = %d, %d\n", n, operations_count);
 }
 
@@ -49,7 +48,6 @@ int main()
 
     generate_svg_file("file.html", data, n);
     */
-
     FILE *file = fopen("worst_case.dat", "w");
     for (int i = 10000; i <= 500000; i += 10000)
     {

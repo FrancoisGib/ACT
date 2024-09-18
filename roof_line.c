@@ -14,6 +14,20 @@ void free_roof_line(roof_line_t *roof_line)
    free(roof_line);
 }
 
+void free_till_node(roof_line_t *roof_line, node_t *node)
+{
+   node_t *current_node;
+   node_t *next_node = roof_line->root;
+   while ((current_node = next_node) != NULL && node != current_node)
+   {
+      next_node = current_node->next;
+      if (current_node->next != NULL)
+         free(current_node);
+   }
+   free(node);
+   free(roof_line);
+}
+
 int get_line_size(roof_line_t *roof_line)
 {
    int size = 0;
@@ -169,6 +183,7 @@ roof_line_t *fusion(roof_line_t *first_line, roof_line_t *second_line)
 
    node_t *current = NULL;
    node_t *node;
+   node_t *last_node;
 
    while (fl_point != NULL && sl_point != NULL)
    {
@@ -178,6 +193,15 @@ roof_line_t *fusion(roof_line_t *first_line, roof_line_t *second_line)
       y1 = fl_point->y;
       x2 = sl_point->x;
       y2 = sl_point->y;
+
+      if (fl_point->next == NULL)
+      {
+         last_node = sl_point;
+      }
+      else if (fl_point->next == NULL)
+      {
+         last_node = fl_point;
+      }
 
       if (x1 < x2)
       {
@@ -227,58 +251,33 @@ roof_line_t *fusion(roof_line_t *first_line, roof_line_t *second_line)
    }
 
    // we add the end of one line if it's not empty
-   // there's two methods to add the end of the line, one just by moving the node pointer and one by
-   // iterating over the remaining points, I have a problem with the first one because some memory isn't freed
-   // so I prefer to use a while (the first is working though but we have memory leaks).
-   // The second method is commented below.
-   while (sl_point != NULL)
-   {
-      if (current->y != sl_point->y)
-      {
-         node = malloc(sizeof(node_t));
-         node->x = sl_point->x;
-         node->y = sl_point->y;
-         current->next = node;
-         current = current->next;
-      }
-      sl_point = sl_point->next;
-   }
-
-   while (fl_point != NULL)
-   {
-      if (current->y != fl_point->y)
-      {
-         node = malloc(sizeof(node_t));
-         node->x = fl_point->x;
-         node->y = fl_point->y;
-         current->next = node;
-         current = current->next;
-      }
-      fl_point = fl_point->next;
-   }
-   current->next = NULL;
-
-   /* // Second method
    if (sl_point != NULL)
    {                                 // on ne compte pas d'opération car on ne fait que
-      node = malloc(sizeof(node_t)); // déplacer des pointeurs pour ne pas itérer sur les points
+      node = malloc(sizeof(node_t)); // assigner un pointeur déjà existant pour ne pas itérer sur les points
       node->x = sl_point->x;
       node->y = sl_point->y;
       node->next = sl_point->next;
       current->next = node;
-      sl_point->next = NULL;
+      free_till_node(second_line, sl_point);
+   }
+   else
+   {
+      free_roof_line(second_line);
    }
 
    if (fl_point != NULL)
    {                                 // on ne compte pas d'opération car on ne fait que
-      node = malloc(sizeof(node_t)); // déplacer des pointeurs pour ne pas itérer sur les points
+      node = malloc(sizeof(node_t)); // assigner un pointeur déjà existant pour ne pas itérer sur les points
       node->x = fl_point->x;
       node->y = fl_point->y;
       node->next = fl_point->next;
       current->next = node;
-      fl_point->next = NULL;
+      free_till_node(first_line, fl_point);
    }
-   */
+   else
+   {
+      free_roof_line(first_line);
+   }
 
    return roof_line;
 }
@@ -305,8 +304,6 @@ roof_line_t *construct_line(int triplets[][3], int n)
       roof_line_t *left = construct_line(triplets, size);
       roof_line_t *right = construct_line(&triplets[size], n - size);
       roof_line_t *merged = fusion(left, right);
-      free_roof_line(left);
-      free_roof_line(right);
       return merged;
    }
 }
