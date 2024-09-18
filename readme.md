@@ -145,7 +145,7 @@ On reconstruit ensuite la ligne de tois en fusionnant toutes les lignes deux à 
 
 L'algorithme de construction de lignes de toits se trouve à la fin du fichier **roof_line.c**.
 
-Pour le calcul de complexité j'ai décidé de compter le nombre d'ajouts de points dans les lignes de toits.
+Pour le calcul de complexité j'ai décidé de compter le nombre de tour de boucles sur les lignes de toits.
 
 Equation de récurrence : 
 
@@ -160,7 +160,7 @@ D'après le master theorem :
 
 $\log_2 2 = 1$ on est dans le cas $d = \log_b a$, on a donc une complexité en $O(n \log n)$
 
-On a en réalité un peu moins de $n \log_2 n$ parcours des points car l'algorithme de fusion fait disparaitre certains points des lignes, ce qui fait qu'on ne re parcourt pas certains points dans les fusions de niveaux supérieurs. On aurait réellement $n \log_2 n$ calculs dans le pire des cas (que tous les points aient une abscisse différente ou que la ligne forme un escalier).
+On a en réalité un peu moins de $n \log_2 n$ parcours des points car l'algorithme de fusion fait disparaitre certains points des lignes, ce qui fait qu'on ne re parcourt pas certains points dans les fusions de niveaux supérieurs. On aurait réellement $n \log_2 n$ calculs dans le pire des cas (que la ligne forme un escalier symétrique verticalement avec l'axe de symétrie au milieu de la ligne).
 
 Calculs détaillés : 
 

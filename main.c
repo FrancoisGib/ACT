@@ -1,23 +1,24 @@
 #include "roof_line.h"
 
-extern int node_insertion_count;
+extern int operations_count;
 
-roof_line_t *create_stairs_roof_line(int n, FILE *output)
+roof_line_t *create_worst_case_roof_line(int n, FILE *output)
 {
-    node_t *curent_node, node;
     int triplets[n][3];
     for (int i = 0; i < n; i++)
     {
         triplets[i][0] = i + 1;
-        triplets[i][1] = i + 1;
-        triplets[i][2] = i + 2;
+        triplets[i][1] = i + 2;
+        triplets[i][2] = i + 1;
     }
+
     roof_line_t *roof_line = construct_line(triplets, n);
     char buf[32];
-    sprintf(buf, "%d %d\n", n, node_insertion_count);
+    sprintf(buf, "%d %d\n", n, operations_count);
     fwrite(buf, strlen(buf), 1, output);
+
     free(roof_line);
-    printf("insertions count for n = %d, %d\n", n, node_insertion_count);
+    printf("Insertions count for n = %d, %d\n", n, operations_count);
 }
 
 int main()
@@ -52,8 +53,8 @@ int main()
     FILE *file = fopen("worst_case.dat", "w");
     for (int i = 10000; i <= 500000; i += 10000)
     {
-        node_insertion_count = 0;
-        create_stairs_roof_line(i, file);
+        operations_count = 0;
+        create_worst_case_roof_line(i, file);
     }
     fclose(file);
     return 0;

@@ -1,6 +1,6 @@
 #include "roof_line.h"
 
-int node_insertion_count = 0;
+int operations_count = 0;
 
 void free_roof_line(roof_line_t *roof_line)
 {
@@ -172,6 +172,8 @@ roof_line_t *fusion(roof_line_t *first_line, roof_line_t *second_line)
 
    while (fl_point != NULL && sl_point != NULL)
    {
+      operations_count++; // we count the number of loop count.
+
       x1 = fl_point->x;
       y1 = fl_point->y;
       x2 = sl_point->x;
@@ -205,18 +207,19 @@ roof_line_t *fusion(roof_line_t *first_line, roof_line_t *second_line)
          node->x = x;
          node->y = y;
          current = node;
+         current->next = NULL;
          roof_line->root = current;
       }
       else
       {
          if (current->y != y)
          {
-            node_insertion_count++;
             node = malloc(sizeof(node_t));
             node->x = x;
             node->y = y;
             current->next = node;
             current = current->next;
+            current->next = NULL;
          }
          // if the point before has the same y (example: (3,7) and (5,7),
          // we juste keep the (3,7)), so we don't need to add the new node
@@ -224,11 +227,14 @@ roof_line_t *fusion(roof_line_t *first_line, roof_line_t *second_line)
    }
 
    // we add the end of one line if it's not empty
+   // there's two methods to add the end of the line, one just by moving the node pointer and one by
+   // iterating over the remaining points, I have a problem with the first one because some memory isn't freed
+   // so I prefer to use a while (the first is working though but we have memory leaks).
+   // The second method is commented below.
    while (sl_point != NULL)
    {
       if (current->y != sl_point->y)
       {
-         node_insertion_count++;
          node = malloc(sizeof(node_t));
          node->x = sl_point->x;
          node->y = sl_point->y;
@@ -242,7 +248,6 @@ roof_line_t *fusion(roof_line_t *first_line, roof_line_t *second_line)
    {
       if (current->y != fl_point->y)
       {
-         node_insertion_count++;
          node = malloc(sizeof(node_t));
          node->x = fl_point->x;
          node->y = fl_point->y;
@@ -251,8 +256,30 @@ roof_line_t *fusion(roof_line_t *first_line, roof_line_t *second_line)
       }
       fl_point = fl_point->next;
    }
+   current->next = NULL;
 
-   current->next = NULL; // can cause memory error if the last node's next is not NULL
+   /* // Second method
+   if (sl_point != NULL)
+   {                                 // on ne compte pas d'opération car on ne fait que
+      node = malloc(sizeof(node_t)); // déplacer des pointeurs pour ne pas itérer sur les points
+      node->x = sl_point->x;
+      node->y = sl_point->y;
+      node->next = sl_point->next;
+      current->next = node;
+      sl_point->next = NULL;
+   }
+
+   if (fl_point != NULL)
+   {                                 // on ne compte pas d'opération car on ne fait que
+      node = malloc(sizeof(node_t)); // déplacer des pointeurs pour ne pas itérer sur les points
+      node->x = fl_point->x;
+      node->y = fl_point->y;
+      node->next = fl_point->next;
+      current->next = node;
+      fl_point->next = NULL;
+   }
+   */
+
    return roof_line;
 }
 

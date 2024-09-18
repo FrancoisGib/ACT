@@ -1,10 +1,11 @@
 #include "roof_line.h"
 
-extern int node_insertion_count;
+extern int operations_count;
 int test_number = 1;
 
-roof_line_t *read_test_file(char *filename, FILE *output)
+roof_line_t *read_test_file(char *filename)
 {
+   FILE *output = fopen("output.dat", "a");
    FILE *file = fopen(filename, "r");
    int size;
    fscanf(file, "%d\n", &size);
@@ -20,8 +21,9 @@ roof_line_t *read_test_file(char *filename, FILE *output)
    roof_line_t *roof_line = construct_line(triplets, size);
    fclose(file);
    char buf[32];
-   sprintf(buf, "%d %d\n", size, node_insertion_count);
+   sprintf(buf, "%d %d\n", size, operations_count);
    fwrite(buf, strlen(buf), 1, output);
+   fclose(output);
    return roof_line;
 }
 
@@ -54,9 +56,9 @@ roof_line_t *read_answer_file(char *filename)
    return roof_line;
 }
 
-void test_func(char *filename, FILE *file)
+void test_func(char *filename)
 {
-   node_insertion_count = 0;
+   operations_count = 0;
    char input[strlen("tests/") + strlen(filename) + strlen("-input.txt")];
    strcpy(input, "tests/");
    strcpy(&input[strlen("tests/")], filename);
@@ -67,7 +69,7 @@ void test_func(char *filename, FILE *file)
    strcpy(&output[strlen("tests/")], filename);
    strcpy(&output[strlen("tests/") + strlen(filename)], "-output.txt");
 
-   roof_line_t *test = read_test_file(input, file);
+   roof_line_t *test = read_test_file(input);
    int compressed_line_size = get_line_size(test);
 
    roof_line_t *correct_answer = read_answer_file(output);
@@ -85,7 +87,7 @@ void test_func(char *filename, FILE *file)
    free_roof_line(correct_answer);
    if (res)
    {
-      printf("\nTest %d : success, number of node traveled %d, compressed line size %d\n\n--------------------------------------\n", test_number, node_insertion_count, compressed_line_size);
+      printf("\nTest %d : success, number of node traveled %d, compressed line size %d\n\n--------------------------------------\n", test_number, operations_count, compressed_line_size);
    }
    else
    {
@@ -96,16 +98,14 @@ void test_func(char *filename, FILE *file)
 
 int main()
 {
-   FILE *output = fopen("output.dat", "w");
-   test_func("tp1-la-ligne-des-toits-271915984", output);
-   test_func("tp1-la-ligne-des-toits-620227487", output);
-   test_func("tp1-la-ligne-des-toits-698049672", output);
-   test_func("tp1-la-ligne-des-toits-1001610599", output);
-   test_func("tp1-la-ligne-des-toits-1085866537", output);
-   test_func("tp1-la-ligne-des-toits-1147394754", output);
-   test_func("tp1-la-ligne-des-toits-1265147860", output);
-   test_func("tp1-la-ligne-des-toits-1611906190", output);
-   test_func("tp1-la-ligne-des-toits-2127497495", output);
-   fclose(output);
+   test_func("tp1-la-ligne-des-toits-271915984");
+   test_func("tp1-la-ligne-des-toits-620227487");
+   test_func("tp1-la-ligne-des-toits-698049672");
+   test_func("tp1-la-ligne-des-toits-1001610599");
+   test_func("tp1-la-ligne-des-toits-1085866537");
+   test_func("tp1-la-ligne-des-toits-1147394754");
+   test_func("tp1-la-ligne-des-toits-1265147860");
+   test_func("tp1-la-ligne-des-toits-1611906190");
+   test_func("tp1-la-ligne-des-toits-2127497495");
    return 0;
 }

@@ -7,6 +7,7 @@ compil: roof_line.h roof_line.c test.c
 
 exec:
 	./main
+	rm -f output.dat
 	./test
 
 clean:
