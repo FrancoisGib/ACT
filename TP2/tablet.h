@@ -1,3 +1,7 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
 typedef struct
 {
     int i;
@@ -9,4 +13,4 @@ typedef struct
     int m;
     int n;
     point_t *point;
-} tablette_t;
+} tablet_t;

@@ -30,5 +30,13 @@ On aurait x + y configurations différentes.
 
 ### Q4)
 
-$ 1 - \max(succ) $ si $ \forall x \in succ, x >= 0 $
-sinon $ 1 - \max(succ) $
+On prend le 1 - max(successeurs) dans le cas où tous les successeurs sont positifs, sinon on prend 1 - max(successeurs) parmi les successeurs négatifs.
+
+$P(successors) =
+     \begin{cases}
+       1 - \max(negsuccessors) & \exists x \in successors, x < 0; negsuccessors \in successors \cap Z^− \\
+       1 - \max(successors) & \text{else}
+     \end{cases}
+$
+
+### Q5)
