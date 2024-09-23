@@ -1,4 +1,6 @@
-## TP1: Diviser pour Régner : La ligne des toits
+# ACT
+
+## TP2: Programmation dynamique: le jeu du chocolat
 
 ### GIBIER François | MAZURE Antoine
 
