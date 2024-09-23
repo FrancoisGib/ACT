@@ -97,16 +97,100 @@ void add_all_next_tablets_j(tablet_t current_tablet, tablet_t tablets[])
    }
 }
 
+int calculate_configuration_dynamic(tablet_t current_tablet, ll_point_t *tab[current_tablet.m][current_tablet.n])
+{
+   if (current_tablet.m == 1 && current_tablet.n == 1)
+   {
+      return 0;
+   }
+   ll_point_t *ll_point = tab[current_tablet.m][current_tablet.n];
+
+   while (ll_point != NULL)
+   {
+      if (ll_point->point.i == current_tablet.point.i && ll_point->point.j == current_tablet.point.j)
+      {
+         return ll_point->value;
+      }
+      ll_point = ll_point->next;
+   }
+   tablet_t tablets[current_tablet.m + current_tablet.n - 1];
+   add_all_next_tablets_i(current_tablet, tablets);
+   add_all_next_tablets_j(current_tablet, &tablets[current_tablet.m - 1]);
+
+   int configurations_res[current_tablet.m + current_tablet.n - 1];
+   for (int i = 0; i < current_tablet.m + current_tablet.n - 2; i++)
+   {
+      configurations_res[i] = calculate_configuration_dynamic(tablets[i], tab);
+   }
+   int max = calculate_max(configurations_res, current_tablet.m + current_tablet.n - 2);
+   ll_point = tab[current_tablet.m][current_tablet.n];
+   if (ll_point == NULL)
+   {
+      ll_point = malloc(sizeof(ll_point_t));
+      ll_point->value = max;
+      ll_point->point.i = current_tablet.point.i;
+      ll_point->point.j = current_tablet.point.j;
+      ll_point->next = NULL;
+      tab[current_tablet.m][current_tablet.n] = ll_point;
+   }
+   else
+   {
+      ll_point_t *last_point;
+      while (ll_point != NULL)
+      {
+         if (ll_point->point.i == current_tablet.point.i && ll_point->point.j == current_tablet.point.j)
+         {
+            ll_point->value = MAX(max, ll_point->value);
+            return max;
+         }
+         last_point = ll_point;
+         ll_point = ll_point->next;
+      }
+      last_point->next = malloc(sizeof(ll_point_t));
+      last_point->value = max;
+      last_point->point.i = current_tablet.point.i;
+      last_point->point.j = current_tablet.point.j;
+   }
+   return max;
+}
+
+int calculate_configuration_dynamic_init(tablet_t current_tablet)
+{
+   ll_point_t *tab[current_tablet.m + 1][current_tablet.n + 1];
+   for (int i = 0; i < current_tablet.m + 1; i++)
+   {
+      for (int j = 0; j < current_tablet.n + 1; j++)
+      {
+         tab[i][j] = NULL;
+      }
+   }
+   return calculate_configuration_dynamic(current_tablet, tab);
+}
+
 int main()
 {
    tablet_t tablet;
-   tablet.m = 3;
-   tablet.n = 2;
+   tablet.m = 10;
+   tablet.n = 7;
    point_t point = {2, 0};
    tablet.point = point;
 
-   int res = calculate_configuration(tablet);
-   printf("res : %d\n", res);
+   int res;
+
+   clock_t start, end;
+   double cpu_time_used;
+
+   start = clock();
+   res = calculate_configuration(tablet);
+   end = clock();
+   cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
+   printf("res : %d, cpu time : %lf\n", res, cpu_time_used);
+
+   start = clock();
+   res = calculate_configuration_dynamic_init(tablet);
+   end = clock();
+   cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
+   printf("res : %d, cpu time : %lf\n", res, cpu_time_used);
    /*int test1[] = {2, 4, 11, 0};
    int res1 = calculate_max(test1, sizeof(test1) / sizeof(int), 1);
    printf("res: %d\n", res1);
