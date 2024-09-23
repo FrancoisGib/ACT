@@ -35,7 +35,7 @@ On prend le 1 - max(successeurs) dans le cas où tous les successeurs sont posit
 $P(successors) =
      \begin{cases}
        1 - \max(negsuccessors) & \exists x \in successors, x < 0; negsuccessors \in successors \cap Z^− \\
-       1 - \max(successors) & \text{else}
+      - (1 + \max(successors)) & \text{else}
      \end{cases}
 $
 

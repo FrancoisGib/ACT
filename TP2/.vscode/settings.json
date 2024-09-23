@@ -1,0 +1,8 @@
+{
+   "files.associations": {
+      "*.tsx": "typescriptreact",
+      "tablet.h": "c",
+      "string.h": "c",
+      "stdlib.h": "c"
+   }
+}

@@ -2,7 +2,7 @@
 
 extern int operations_count;
 
-roof_line_t *create_worst_case_roof_line(int n, FILE *output)
+void create_worst_case_roof_line(int n, FILE *output)
 {
     int triplets[n][3];
     for (int i = 0; i < n; i++)
