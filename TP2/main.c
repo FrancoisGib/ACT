@@ -1,5 +1,6 @@
 #include "tablet.h"
 #include <time.h>
+#include <string.h>
 
 extern int nb_allocations;
 
@@ -34,5 +35,21 @@ int main()
    end = clock();
    cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
    printf("Dynamic symetric : %d, time : %lf, number of allocations : %d\n", res, cpu_time_used, nb_allocations);
+
+   /*nb_allocations = 0;
+   FILE *file = fopen("output.dat", "w");
+   tablet.m = 50;
+   tablet.n = 50;
+   for (int i = 0; i < tablet.m; i++)
+   {
+      tablet.point.i = i;
+      tablet.point.j = tablet.m - 1 - i;
+      calculate_configuration_dynamic_init_symetric(tablet);
+      char buf[32];
+      sprintf(buf, "%d %d\n", tablet.point.i, nb_allocations);
+      fwrite(buf, strlen(buf), 1, file);
+      nb_allocations = 0;
+   }
+   fclose(file);*/
    return 0;
 }
