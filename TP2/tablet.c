@@ -225,8 +225,8 @@ int calculate_configuration_dynamic_init_symetric(tablet_t tablet)
    i = tablet.point.i;
    j = tablet.point.j;
 
-   int16_t ****array = init_array(m + 1, n + 1, i / 2, j / 2);
+   int16_t ****array = init_array(m, n, i / 2, j / 2);
    int res = calculate_configuration_dynamic_symetric(tablet, array);
-   free_array(array, m + 1, n + 1, i / 2, j / 2);
+   free_array(array, m, n, i / 2, j / 2);
    return res;
 }
