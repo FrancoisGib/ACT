@@ -192,10 +192,10 @@ int calculate_configuration_dynamic_symetric(tablet_t tablet, int16_t ****tab)
       j = tablet.point.j;
       m = tablet.m;
       n = tablet.n;
-
-      i = MIN(i, tablet.m - 1 - i);
-      j = MIN(j, tablet.n - 1 - j);
    }
+
+   i = MIN(i, m - 1 - i);
+   j = MIN(j, n - 1 - j);
 
    int16_t array_value = tab[m][n][i][j];
    if (array_value != 0)
