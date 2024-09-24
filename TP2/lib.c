@@ -1,5 +1,7 @@
 #include "lib.h"
 
+int nb_allocations = 0;
+
 int16_t ****init_array(int m, int n, int i, int j)
 {
    int16_t ****tab = malloc((m + 1) * sizeof(int16_t ***)); // int16_t for less memory (16 bits is enough)
@@ -14,6 +16,7 @@ int16_t ****init_array(int m, int n, int i, int j)
             tab[x][y][k] = malloc((j + 1) * sizeof(int16_t));
             for (int l = 0; l <= j; l++)
             {
+               nb_allocations++;
                tab[x][y][k][l] = 0;
             }
          }
