@@ -1,23 +1,5 @@
 #include "tablet.h"
 
-int calculate_configuration(tablet_t current_tablet)
-{
-   if (current_tablet.m == 1 && current_tablet.n == 1)
-   {
-      return 0;
-   }
-   tablet_t tablets[current_tablet.m + current_tablet.n - 1];
-   add_all_next_tablets_i(current_tablet, tablets);
-   add_all_next_tablets_j(current_tablet, &tablets[current_tablet.m - 1]);
-
-   int configurations_res[current_tablet.m + current_tablet.n - 1];
-   for (int i = 0; i < current_tablet.m + current_tablet.n - 2; i++)
-   {
-      configurations_res[i] = calculate_configuration(tablets[i]);
-   }
-   return calculate_max(configurations_res, current_tablet.m + current_tablet.n - 2);
-}
-
 int calculate_max(int configurations_res[], int n)
 {
    int max = configurations_res[0];
@@ -97,106 +79,111 @@ void add_all_next_tablets_j(tablet_t current_tablet, tablet_t tablets[])
    }
 }
 
-int calculate_configuration_dynamic(tablet_t current_tablet, ll_point_t *tab[current_tablet.m][current_tablet.n])
+int calculate_configuration(tablet_t current_tablet)
 {
    if (current_tablet.m == 1 && current_tablet.n == 1)
    {
       return 0;
-   }
-   ll_point_t *ll_point = tab[current_tablet.m][current_tablet.n];
-
-   while (ll_point != NULL)
-   {
-      if (ll_point->point.i == current_tablet.point.i && ll_point->point.j == current_tablet.point.j)
-      {
-         return ll_point->value;
-      }
-      ll_point = ll_point->next;
    }
    tablet_t tablets[current_tablet.m + current_tablet.n - 1];
    add_all_next_tablets_i(current_tablet, tablets);
    add_all_next_tablets_j(current_tablet, &tablets[current_tablet.m - 1]);
 
    int configurations_res[current_tablet.m + current_tablet.n - 1];
-   for (int i = 0; i < current_tablet.m + current_tablet.n - 2; i++)
+   for (int i = 0; i < current_tablet.m - 1 + current_tablet.n - 1; i++) // plus clair que -2 directement
+   {
+      configurations_res[i] = calculate_configuration(tablets[i]);
+   }
+   return calculate_max(configurations_res, current_tablet.m - 1 + current_tablet.n - 1);
+}
+
+int calculate_configuration_dynamic(tablet_t current_tablet, int16_t ****tab)
+{
+   if (current_tablet.m == 1 && current_tablet.n == 1)
+   {
+      return 0;
+   }
+
+   int16_t array_value = tab[current_tablet.m][current_tablet.n][current_tablet.point.i][current_tablet.point.j];
+   if (array_value != 0)
+   {
+      return array_value;
+   }
+
+   tablet_t tablets[current_tablet.m + current_tablet.n - 1];
+   add_all_next_tablets_i(current_tablet, tablets);
+   add_all_next_tablets_j(current_tablet, &tablets[current_tablet.m - 1]);
+
+   int configurations_res[current_tablet.m + current_tablet.n - 1];
+   for (int i = 0; i < current_tablet.m - 1 + current_tablet.n - 1; i++) // plus clair que -2 directement
    {
       configurations_res[i] = calculate_configuration_dynamic(tablets[i], tab);
    }
-   int max = calculate_max(configurations_res, current_tablet.m + current_tablet.n - 2);
-   ll_point = tab[current_tablet.m][current_tablet.n];
-   if (ll_point == NULL)
-   {
-      ll_point = malloc(sizeof(ll_point_t));
-      ll_point->value = max;
-      ll_point->point.i = current_tablet.point.i;
-      ll_point->point.j = current_tablet.point.j;
-      ll_point->next = NULL;
-      tab[current_tablet.m][current_tablet.n] = ll_point;
-   }
-   else
-   {
-      ll_point_t *last_point;
-      while (ll_point != NULL)
-      {
-         if (ll_point->point.i == current_tablet.point.i && ll_point->point.j == current_tablet.point.j)
-         {
-            ll_point->value = MAX(max, ll_point->value);
-            return max;
-         }
-         last_point = ll_point;
-         ll_point = ll_point->next;
-      }
-      last_point->next = malloc(sizeof(ll_point_t));
-      last_point->value = max;
-      last_point->point.i = current_tablet.point.i;
-      last_point->point.j = current_tablet.point.j;
-   }
+   int max = calculate_max(configurations_res, current_tablet.m - 1 + current_tablet.n - 1);
+   tab[current_tablet.m][current_tablet.n][current_tablet.point.i][current_tablet.point.j] = max;
    return max;
 }
 
 int calculate_configuration_dynamic_init(tablet_t current_tablet)
 {
-   ll_point_t *tab[current_tablet.m + 1][current_tablet.n + 1];
-   for (int i = 0; i < current_tablet.m + 1; i++)
+   int16_t ****tab = malloc((current_tablet.m + 1) * sizeof(int16_t ***)); // int16_t for less memory (16 bits is enough)
+   for (int i = 0; i <= current_tablet.m; i++)
    {
-      for (int j = 0; j < current_tablet.n + 1; j++)
+      tab[i] = malloc((current_tablet.n + 1) * sizeof(int16_t **));
+      for (int j = 0; j <= current_tablet.n; j++)
       {
-         tab[i][j] = NULL;
+         tab[i][j] = malloc((current_tablet.point.i + 1) * sizeof(int16_t *));
+         for (int k = 0; k <= current_tablet.point.i; k++)
+         {
+            tab[i][j][k] = malloc((current_tablet.point.j + 1) * sizeof(int16_t));
+            for (int l = 0; l <= current_tablet.point.j; l++)
+            {
+               tab[i][j][k][l] = 0;
+            }
+         }
       }
    }
-   return calculate_configuration_dynamic(current_tablet, tab);
+
+   int res = calculate_configuration_dynamic(current_tablet, tab);
+
+   for (int i = 0; i <= current_tablet.m; i++)
+   {
+      for (int j = 0; j <= current_tablet.n; j++)
+      {
+         for (int k = 0; k <= current_tablet.point.i; k++)
+         {
+            free(tab[i][j][k]);
+         }
+         free(tab[i][j]);
+      }
+      free(tab[i]);
+   }
+   free(tab);
+   return res;
 }
 
 int main()
 {
    tablet_t tablet;
-   tablet.m = 10;
-   tablet.n = 7;
-   point_t point = {2, 0};
-   tablet.point = point;
-
+   tablet.m = 100;
+   tablet.n = 100;
+   tablet.point.i = 48;
+   tablet.point.j = 52;
    int res;
-
    clock_t start, end;
    double cpu_time_used;
-
+   /*
    start = clock();
    res = calculate_configuration(tablet);
    end = clock();
    cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
    printf("res : %d, cpu time : %lf\n", res, cpu_time_used);
-
+   */
    start = clock();
    res = calculate_configuration_dynamic_init(tablet);
    end = clock();
    cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
    printf("res : %d, cpu time : %lf\n", res, cpu_time_used);
-   /*int test1[] = {2, 4, 11, 0};
-   int res1 = calculate_max(test1, sizeof(test1) / sizeof(int), 1);
-   printf("res: %d\n", res1);
 
-   int test2[] = {-11, 3, -8, 17};
-   int res2 = calculate_max(test2, sizeof(test2) / sizeof(int), 1);
-   printf("res: %d\n", res2);*/
    return 0;
 }
