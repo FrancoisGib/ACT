@@ -3,18 +3,18 @@
 int16_t ****init_array(int m, int n, int i, int j)
 {
    int16_t ****tab = malloc((m + 1) * sizeof(int16_t ***)); // int16_t for less memory (16 bits is enough)
-   for (int i = 0; i <= m; i++)
+   for (int x = 0; x <= m; x++)
    {
-      tab[i] = malloc((n + 1) * sizeof(int16_t **));
-      for (int j = 0; j <= n; j++)
+      tab[x] = malloc((n + 1) * sizeof(int16_t **));
+      for (int y = 0; y <= n; y++)
       {
-         tab[i][j] = malloc((i + 1) * sizeof(int16_t *));
+         tab[x][y] = malloc((i + 1) * sizeof(int16_t *));
          for (int k = 0; k <= i; k++)
          {
-            tab[i][j][k] = malloc((j + 1) * sizeof(int16_t));
+            tab[x][y][k] = malloc((j + 1) * sizeof(int16_t));
             for (int l = 0; l <= j; l++)
             {
-               tab[i][j][k][l] = 0;
+               tab[x][y][k][l] = 0;
             }
          }
       }
@@ -24,17 +24,17 @@ int16_t ****init_array(int m, int n, int i, int j)
 
 void free_array(int16_t ****array, int m, int n, int i, int j)
 {
-   for (int i = 0; i <= m; i++)
+   for (int x = 0; x <= m; x++)
    {
-      for (int j = 0; j <= n; j++)
+      for (int y = 0; y <= n; y++)
       {
          for (int k = 0; k <= i; k++)
          {
-            free(array[i][j][k]);
+            free(array[x][y][k]);
          }
-         free(array[i][j]);
+         free(array[x][y]);
       }
-      free(array[i]);
+      free(array[x]);
    }
    free(array);
 }
