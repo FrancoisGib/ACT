@@ -2,3 +2,4 @@ tablet
 .vscode/
 main
 *.o
+output.dat

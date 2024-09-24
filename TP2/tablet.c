@@ -238,11 +238,11 @@ int calculate_configuration_dynamic_init_symetric(tablet_t tablet)
       n = tablet.n;
    }
 
-   i = MIN(i, m - 1 - i);
-   j = MIN(j, n - 1 - j);
+   i = MIN(i, m - i);
+   j = MIN(j, n - j);
 
-   int16_t ****array = init_array(m, n, i + 1, j + 1);
+   int16_t ****array = init_array(m, n, i, j);
    int res = calculate_configuration_dynamic_symetric(tablet, array);
-   free_array(array, m, n, i + 1, j + 1);
+   free_array(array, m, n, i, j);
    return res;
 }

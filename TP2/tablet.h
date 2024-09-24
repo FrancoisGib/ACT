@@ -17,6 +17,12 @@ typedef struct
     point_t point;
 } tablet_t;
 
+typedef struct
+{
+    tablet_t tablet;
+    int v;
+} move_t;
+
 int calculate_max(int configurations_res[], int n);
 void add_all_next_tablets_i(tablet_t current_tablet, tablet_t tablets[]);
 void add_all_next_tablets_j(tablet_t current_tablet, tablet_t tablets[]);
