@@ -97,45 +97,6 @@ int calculate_configuration(tablet_t tablet)
    return calculate_max(configurations_res, tablet.m - 1 + tablet.n - 1);
 }
 
-int16_t ****init_array(int m, int n, int i, int j)
-{
-   int16_t ****tab = malloc((m + 1) * sizeof(int16_t ***)); // int16_t for less memory (16 bits is enough)
-   for (int i = 0; i <= m; i++)
-   {
-      tab[i] = malloc((n + 1) * sizeof(int16_t **));
-      for (int j = 0; j <= n; j++)
-      {
-         tab[i][j] = malloc((i + 1) * sizeof(int16_t *));
-         for (int k = 0; k <= i; k++)
-         {
-            tab[i][j][k] = malloc((j + 1) * sizeof(int16_t));
-            for (int l = 0; l <= j; l++)
-            {
-               tab[i][j][k][l] = 0;
-            }
-         }
-      }
-   }
-   return tab;
-}
-
-void free_array(int16_t ****array, int m, int n, int i, int j)
-{
-   for (int i = 0; i <= m; i++)
-   {
-      for (int j = 0; j <= n; j++)
-      {
-         for (int k = 0; k <= i; k++)
-         {
-            free(array[i][j][k]);
-         }
-         free(array[i][j]);
-      }
-      free(array[i]);
-   }
-   free(array);
-}
-
 int calculate_configuration_dynamic(tablet_t tablet, int16_t ****tab)
 {
    if (tablet.m == 1 && tablet.n == 1)
@@ -221,6 +182,9 @@ int calculate_configuration_dynamic_symetric(tablet_t tablet, int16_t ****tab)
       j = tablet.point.i;
       m = tablet.n;
       n = tablet.m;
+
+      i = MIN(i, tablet.n - 1 - i);
+      j = MIN(j, tablet.m - 1 - j);
    }
    else
    {
@@ -228,6 +192,9 @@ int calculate_configuration_dynamic_symetric(tablet_t tablet, int16_t ****tab)
       j = tablet.point.j;
       m = tablet.m;
       n = tablet.n;
+
+      i = MIN(i, tablet.m - 1 - i);
+      j = MIN(j, tablet.n - 1 - j);
    }
 
    int16_t array_value = tab[m][n][i][j];
@@ -258,40 +225,8 @@ int calculate_configuration_dynamic_init_symetric(tablet_t tablet)
    i = tablet.point.i;
    j = tablet.point.j;
 
-   int16_t ****array = init_array(m + 1, n + 1, tablet.point.i + 1, tablet.point.j + 1);
+   int16_t ****array = init_array(m + 1, n + 1, i / 2, j / 2);
    int res = calculate_configuration_dynamic_symetric(tablet, array);
-   free_array(array, m + 1, n + 1, tablet.point.i + 1, tablet.point.j + 1);
+   free_array(array, m + 1, n + 1, i / 2, j / 2);
    return res;
-}
-
-int main()
-{
-   tablet_t tablet;
-   tablet.m = 100;
-   tablet.n = 100;
-   tablet.point.i = 80;
-   tablet.point.j = 80;
-   int res;
-   clock_t start, end;
-   double cpu_time_used;
-   /*
-   start = clock();
-   res = calculate_configuration(tablet);
-   end = clock();
-   cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
-   printf("res : %d, cpu time : %lf\n", res, cpu_time_used);
-   */
-   start = clock();
-   res = calculate_configuration_dynamic_init(tablet);
-   end = clock();
-   cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
-   printf("res : %d, cpu time : %lf\n", res, cpu_time_used);
-   // calculate_all_configurations_equals_x(tablet, 191);
-
-   start = clock();
-   res = calculate_configuration_dynamic_init_symetric(tablet);
-   end = clock();
-   cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
-   printf("res : %d, cpu time : %lf\n", res, cpu_time_used);
-   return 0;
 }

@@ -1,2 +1,4 @@
 tablet
 .vscode/
+main
+*.o
