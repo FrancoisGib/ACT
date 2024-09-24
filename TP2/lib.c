@@ -1,9 +1,11 @@
 #include "lib.h"
 
 int nb_allocations = 0;
+int memory_used;
 
 int16_t ****init_array(int m, int n, int i, int j)
 {
+   memory_used = n * m * i * j;
    int16_t ****tab = malloc((m + 1) * sizeof(int16_t ***)); // int16_t for less memory (16 bits is enough)
    for (int x = 0; x <= m; x++)
    {
