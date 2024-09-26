@@ -36,10 +36,17 @@ On prend le 1 - max(successeurs) dans le cas où tous les successeurs sont posit
 
 $P(successors) =
      \begin{cases}
-       1 & \text{si x = 0} \\
+       0 & \text{si x = 0} \\
        1 - \max(negsuccessors) & \exists x \in successors, x < 0; negsuccessors \in successors \cap Z^− \\
        - (1 + \max(successors)) & \text{else}
      \end{cases}
 $
 
-### Q5)
+### Q8)
+
+On peut utiliser un tableau de taille $m * n * i * j$ avec m la largeur de la tablette, n sa longueur, i l'abscisse du carré de la mort et j son ordonnée.
+
+### Q9)
+
+(100, 100, 50, 50) = -198
+(100, 100, 48, 52) = 191
