@@ -4,16 +4,41 @@
 
 extern int memory_used;
 
-int main()
+int main(int argc, char **argv)
 {
    tablet_t tablet;
-   tablet.m = 51;
-   tablet.n = 51;
-   tablet.point.i = 25;
-   tablet.point.j = 25;
+   if (argc < 5)
+   {
+      tablet.m = 10;
+      tablet.n = 7;
+      tablet.point.i = 7;
+      tablet.point.j = 3;
+      printf("Configuration par défaut (%d %d), (%d %d)\n", tablet.m, tablet.n, tablet.point.i, tablet.point.j);
+   }
+   else
+   {
+      int m = atoi(argv[1]);
+      int n = atoi(argv[2]);
+      int i = atoi(argv[3]);
+      int j = atoi(argv[4]);
+      printf("%d %d %d %d\n", m, n, i, j);
+      if (!(m > i && n > j))
+      {
+         printf("Configuration invalide\n");
+         exit(0);
+      }
+      tablet.m = m;
+      tablet.n = n;
+      tablet.point.i = i;
+      tablet.point.j = j;
+   }
+
+   // calculate_all_configurations_equals_x(tablet, 127);
+
    int res;
    clock_t start, end;
    double cpu_time_used;
+
    /*
    start = clock();
    res = calculate_configuration(tablet);
@@ -21,7 +46,7 @@ int main()
    cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
    printf("Basic recursive : %d, time : %lf\n", res, cpu_time_used);
    */
-   // calculate_all_configurations_equals_x(tablet, 191);
+
    memory_used = 0;
    start = clock();
    res = calculate_configuration_dynamic_init(tablet);
@@ -36,29 +61,5 @@ int main()
    cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
    printf("Dynamic symetric : %d, time : %lf, memory used : %d bytes\n", res, cpu_time_used, memory_used);
 
-   FILE *file = fopen("output.dat", "w");
-   tablet.m = 51;
-   tablet.n = 51;
-   for (int i = 1; i < tablet.m - 1; i++)
-   {
-      tablet.point.i = i;
-      tablet.point.j = tablet.m - 1 - i;
-
-      memory_used = 0;
-      calculate_configuration_dynamic_init(tablet);
-      int dynamic_memory_used = memory_used;
-
-      tablet.point.i = i;
-      tablet.point.j = tablet.m - 1 - i;
-
-      memory_used = 0;
-      calculate_configuration_dynamic_init_symetric(tablet);
-      int dynamic_symetric_memory_used = memory_used;
-      char buf[100];
-      printf("(%d %d), dynamic : %d bytes, dynamic symetric :  %d bytes\n", tablet.point.i, tablet.point.j, dynamic_memory_used, dynamic_symetric_memory_used);
-      sprintf(buf, "%d %d %d\n", tablet.point.i, dynamic_memory_used, dynamic_symetric_memory_used);
-      fwrite(buf, strlen(buf), 1, file);
-   }
-   fclose(file);
    return 0;
 }
