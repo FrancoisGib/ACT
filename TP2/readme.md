@@ -59,7 +59,7 @@ Avec la version récursive simple (sans tableau), on a :
 
 ### Q8)
 
-On peut utiliser un tableau de taille $m * n * i * j$, comme ça si une configuration (x, y) (k, l) a déjà été calculée, pas besoin de la recalculer, on récupère sa valeur dans le tableau à l'indice [x][y][k][l].
+On peut utiliser un tableau de taille $m * n * i * j$ avec m la largeur de la tablette, n sa longueur, i l'abscisse du carré de la mort et j son ordonnée, comme ça si une configuration (x, y) (k, l) a déjà été calculée, pas besoin de la recalculer, on récupère sa valeur dans le tableau à l'indice [x][y][k][l].
 
 ### Q9)
 
