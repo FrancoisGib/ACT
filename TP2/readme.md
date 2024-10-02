@@ -116,7 +116,7 @@ L'espace gagné ne dépend donc que de i et j, plus i et j vont se rapprocher de
 Pour i = m / 2 et j = n / 2 avec n et m impairs, on ne gagne pas d'espace car il n'y a pas de symétries.
 Le meilleur des cas (celui où les symétries permettent de gagner le plus de mémoire) est donc celui où i et j sont à la même distance de m pour i et n pour j. Par exemple pour une tablette de (100, 100), la configuration où on gagne le plus de mémoire sera (25, 75), car on passe de $100 * 100 * 25 * 75 = 18750000$ à $100 * 100 * 25 * 25 = 6250000$, on divise l'espace mémoire par le quotient du maximum de i et j par le minimum de i et j ($(\max{i, j}) / (\min{i, j})$).
 
-On a une complexité en $O(m * n * i'' * j'')$
+On a une complexité en $Θ(m * n * i'' * j'')$
 
 D'après les expérimentations (voir *experiments.c*), on a une accélération du programme d'environ 270% et on utilise environ 50% de mémoire en moins en utilisant les symétries.
 
