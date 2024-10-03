@@ -32,7 +32,6 @@ int main(int argc, char **argv)
       tablet.point.i = i;
       tablet.point.j = j;
    }
-
    // calculate_all_configurations_equals_x(tablet, 127);
 
    int res;
@@ -47,19 +46,21 @@ int main(int argc, char **argv)
    printf("Basic recursive : %d, time : %lf\n", res, cpu_time_used);
    */
 
-   memory_used = 0;
-   start = clock();
-   res = calculate_configuration_dynamic_init(tablet);
-   end = clock();
-   cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
-   printf("Dynamic : %d, time : %lf, memory used : %d bytes\n", res, cpu_time_used, memory_used);
+   /*
+      memory_used = 0;
+      start = clock();
+      res = calculate_configuration_dynamic_init(tablet);
+      end = clock();
+      cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
+      printf("Dynamic : %d, time : %lf, memory used : %d bytes\n", res, cpu_time_used, memory_used);
 
-   memory_used = 0;
-   start = clock();
-   res = calculate_configuration_dynamic_init_symetric(tablet);
-   end = clock();
-   cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
-   printf("Dynamic symetric : %d, time : %lf, memory used : %d bytes\n", res, cpu_time_used, memory_used);
-
+      memory_used = 0;
+      start = clock();
+      res = calculate_configuration_dynamic_init_symetric(tablet);
+      end = clock();
+      cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
+      printf("Dynamic symetric : %d, time : %lf, memory used : %d bytes\n", res, cpu_time_used, memory_used);
+   */
+   game(tablet);
    return 0;
 }

@@ -1,4 +1,5 @@
 #include "lib.h"
+#include <string.h>
 
 #define MAX(x, y) (x) > (y) ? (x) : (y)
 #define MIN(x, y) (x) > (y) ? (y) : (x)
@@ -31,3 +32,5 @@ int calculate_configuration_dynamic_init(tablet_t tablet);
 void calculate_all_configurations_equals_x(tablet_t tablet, int x);
 int calculate_configuration_dynamic_symetric(tablet_t tablet, int16_t ****tab);
 int calculate_configuration_dynamic_init_symetric(tablet_t tablet);
+void game(tablet_t tablet);
+void print_tablet(tablet_t tablet);
