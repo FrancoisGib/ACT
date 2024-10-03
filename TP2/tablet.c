@@ -172,7 +172,7 @@ void calculate_all_configurations_equals_x(tablet_t tablet, int x)
    free_array(array, m, n, i, j);
 }
 
-void get_symetric_tablet_dimension(tablet_t tablet, tablet_t *symetric_dimensions)
+tablet_t get_symetric_tablet_dimension(tablet_t tablet)
 {
    int m, n, i, j;
    if (tablet.m < tablet.n)
@@ -196,10 +196,7 @@ void get_symetric_tablet_dimension(tablet_t tablet, tablet_t *symetric_dimension
    i = MIN(i, m - 1 - i);
    j = MIN(j, n - 1 - j);
 
-   symetric_dimensions->m = m;
-   symetric_dimensions->n = n;
-   symetric_dimensions->point.i = i;
-   symetric_dimensions->point.j = j;
+   return (tablet_t){m, n, (point_t){i, j}};
 }
 
 int calculate_configuration_dynamic_symetric(tablet_t tablet, int16_t ****tab)
@@ -209,8 +206,7 @@ int calculate_configuration_dynamic_symetric(tablet_t tablet, int16_t ****tab)
       return 0;
    }
 
-   tablet_t symetric_dimensions;
-   get_symetric_tablet_dimension(tablet, &symetric_dimensions);
+   tablet_t symetric_dimensions = get_symetric_tablet_dimension(tablet);
 
    int16_t array_value = tab[symetric_dimensions.m][symetric_dimensions.n][symetric_dimensions.point.i][symetric_dimensions.point.j];
    if (array_value != 0)
@@ -234,8 +230,7 @@ int calculate_configuration_dynamic_symetric(tablet_t tablet, int16_t ****tab)
 
 int calculate_configuration_dynamic_init_symetric(tablet_t tablet)
 {
-   tablet_t symetric_dimensions;
-   get_symetric_tablet_dimension(tablet, &symetric_dimensions);
+   tablet_t symetric_dimensions = get_symetric_tablet_dimension(tablet);
 
    int16_t ****array = init_array(symetric_dimensions.m, symetric_dimensions.n, symetric_dimensions.point.i + 1, symetric_dimensions.point.j + 1);
    int res = calculate_configuration_dynamic_symetric(tablet, array);
@@ -243,7 +238,7 @@ int calculate_configuration_dynamic_init_symetric(tablet_t tablet)
    return res;
 }
 
-point_t *calculate_max_index(int configurations_res[], int n)
+point_t calculate_max_index(int configurations_res[], int n)
 {
    int max = configurations_res[0];
    int index = 0;
@@ -277,11 +272,7 @@ point_t *calculate_max_index(int configurations_res[], int n)
          }
       }
    }
-
-   point_t *res = malloc(sizeof(point_t));
-   res->i = index;
-   res->j = max;
-   return res;
+   return (point_t){index, max};
 }
 
 void game(tablet_t tablet)
@@ -327,8 +318,7 @@ void game(tablet_t tablet)
 
       else
       {
-         tablet_t symetric_dimensions;
-         get_symetric_tablet_dimension(tablet, &symetric_dimensions);
+         tablet_t symetric_dimensions = get_symetric_tablet_dimension(tablet);
          int16_t ****array = init_array(symetric_dimensions.m, symetric_dimensions.n, symetric_dimensions.point.i + 1, symetric_dimensions.point.j + 1);
          tablet_t tablets[tablet.m + tablet.n - 1];
          add_all_next_tablets_i(tablet, tablets);
@@ -339,11 +329,10 @@ void game(tablet_t tablet)
          {
             configurations_res[i] = calculate_configuration_dynamic_symetric(tablets[i], array);
          }
-         point_t *max_index = calculate_max_index(configurations_res, tablet.m - 1 + tablet.n - 1);
-         tablet = tablets[max_index->i];
-         array[symetric_dimensions.m][symetric_dimensions.n][symetric_dimensions.point.i][symetric_dimensions.point.j] = max_index->j;
-         printf("La valeur de la configuration jouée est de %d\n", max_index->j);
-         free(max_index);
+         point_t max_index = calculate_max_index(configurations_res, tablet.m - 1 + tablet.n - 1);
+         tablet = tablets[max_index.i];
+         array[symetric_dimensions.m][symetric_dimensions.n][symetric_dimensions.point.i][symetric_dimensions.point.j] = max_index.j;
+         printf("La valeur de la configuration jouée est de %d\n", max_index.j);
          player = -player;
          free_array(array, symetric_dimensions.m, symetric_dimensions.n, symetric_dimensions.point.i + 1, symetric_dimensions.point.j + 1);
       }
