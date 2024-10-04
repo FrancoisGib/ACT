@@ -22,7 +22,7 @@ typedef struct
 struct node_s
 {
     int16_t v;
-    int hash;
+    point_t point;
     struct node_s *next;
 };
 typedef struct node_s node_t;

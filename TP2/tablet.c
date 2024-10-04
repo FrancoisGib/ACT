@@ -135,9 +135,9 @@ int calculate_configuration_dynamic_init(tablet_t tablet)
    i = tablet.point.i;
    j = tablet.point.j;
 
-   int16_t ****array = init_array(m, n, i, j);
+   int16_t ****array = init_array(m, n, i + 1, j + 1);
    int res = calculate_configuration_dynamic(tablet, array);
-   free_array(array, m, n, i, j);
+   free_array(array, m, n, i + 1, j + 1);
    return res;
 }
 
@@ -146,8 +146,8 @@ void calculate_all_configurations_equals_x(tablet_t tablet, int x)
    int m, n, i, j;
    m = tablet.m;
    n = tablet.n;
-   i = tablet.m - 1;
-   j = tablet.n - 1;
+   i = tablet.m;
+   j = tablet.n;
 
    int16_t ****array = init_array(m, n, i, j);
    int res;
@@ -209,7 +209,6 @@ int calculate_configuration_dynamic_symetric(tablet_t tablet, int16_t ****tab)
    }
 
    tablet_t symetric_dimensions = get_symetric_tablet_dimension(tablet);
-
    int16_t array_value = tab[symetric_dimensions.m][symetric_dimensions.n][symetric_dimensions.point.i][symetric_dimensions.point.j];
    if (array_value != 0)
    {
@@ -233,7 +232,6 @@ int calculate_configuration_dynamic_symetric(tablet_t tablet, int16_t ****tab)
 int calculate_configuration_dynamic_init_symetric(tablet_t tablet)
 {
    tablet_t symetric_dimensions = get_symetric_tablet_dimension(tablet);
-
    int16_t ****array = init_array(symetric_dimensions.m, symetric_dimensions.n, symetric_dimensions.point.i + 1, symetric_dimensions.point.j + 1);
    int res = calculate_configuration_dynamic_symetric(tablet, array);
    free_array(array, symetric_dimensions.m, symetric_dimensions.n, symetric_dimensions.point.i + 1, symetric_dimensions.point.j + 1);
@@ -363,13 +361,39 @@ void print_tablet(tablet_t tablet)
    }
 }
 
+#define TABLE_1 4093
+#define BASE_1 4091
+
+#define TABLE_2 8191
+#define BASE_2 8179
+
+#define TABLE_3 16411
+#define BASE_3 16381
+
+#define TABLE_4 32771
+#define BASE_4 32749
+
+#define TABLE_5 65537
+#define BASE_5 65521
+
+#define TABLE_6 98317
+#define BASE_6 98299
+
+#define TABLE_SIZE TABLE_1
+#define BASE BASE_1
+
+unsigned long hash_tablet(int m, int n)
+{
+   return ((m * BASE) % TABLE_SIZE * BASE + n) % TABLE_SIZE;
+}
+
 int calculate_configuration_hash_init(tablet_t tablet)
 {
-   memory_used += sizeof(node_t *) * (tablet.m * tablet.n);
-   node_t *hashmap[tablet.m * tablet.n + 1];
-   memset(hashmap, 0, (tablet.m * tablet.n + 1) * sizeof(node_t *));
+   memory_used += sizeof(node_t *) * (TABLE_SIZE + 1);
+   node_t *hashmap[TABLE_SIZE + 1];
+   memset(hashmap, 0, (TABLE_SIZE + 1) * sizeof(node_t *));
    int res = calculate_configuration_hash(tablet, hashmap);
-   for (int i = 0; i < tablet.m * tablet.n + 1; i++)
+   for (int i = 0; i < TABLE_SIZE + 1; i++)
    {
       if (hashmap[i] != NULL)
       {
@@ -396,10 +420,10 @@ int calculate_configuration_hash(tablet_t tablet, node_t *hashmap[])
 
    tablet_t symetric_dimensions = get_symetric_tablet_dimension(tablet);
 
-   node_t *linked_list = hashmap[symetric_dimensions.m * symetric_dimensions.n];
+   node_t *linked_list = hashmap[hash_tablet(symetric_dimensions.m, symetric_dimensions.n)];
    while (linked_list != NULL)
    {
-      if (linked_list->hash == symetric_dimensions.point.i * symetric_dimensions.point.j && linked_list->v != 0)
+      if (linked_list->point.i == symetric_dimensions.point.i && linked_list->point.j == symetric_dimensions.point.j)
       {
          return linked_list->v;
       }
@@ -417,33 +441,32 @@ int calculate_configuration_hash(tablet_t tablet, node_t *hashmap[])
    }
    int max = calculate_max(configurations_res, tablet.m - 1 + tablet.n - 1);
 
-   if (hashmap[symetric_dimensions.m * symetric_dimensions.n] == NULL)
+   if (hashmap[hash_tablet(symetric_dimensions.m, symetric_dimensions.n)] == NULL)
    {
       node_t *new_list = malloc(sizeof(node_t));
-      new_list->hash = symetric_dimensions.point.i * symetric_dimensions.point.j;
+      new_list->point.i = symetric_dimensions.point.i;
+      new_list->point.j = symetric_dimensions.point.j;
       new_list->v = max;
       new_list->next = NULL;
-      hashmap[symetric_dimensions.m * symetric_dimensions.n] = new_list;
+      hashmap[hash_tablet(symetric_dimensions.m, symetric_dimensions.n)] = new_list;
    }
    else
    {
-      char found = 0;
-      while (!found && linked_list != NULL)
+
+      while (linked_list != NULL)
       {
-         if (linked_list->hash == symetric_dimensions.point.i * symetric_dimensions.point.j)
+         if (linked_list->point.i == symetric_dimensions.point.i && linked_list->point.j == symetric_dimensions.point.j)
          {
-            found = 1;
+            return linked_list->v;
          }
          linked_list = linked_list->next;
       }
-      if (!found)
-      {
-         node_t *new_first = malloc(sizeof(node_t));
-         new_first->v = max;
-         new_first->hash = symetric_dimensions.point.i * symetric_dimensions.point.j;
-         new_first->next = hashmap[symetric_dimensions.m * symetric_dimensions.n];
-         hashmap[symetric_dimensions.m * symetric_dimensions.n] = new_first;
-      }
+      node_t *new_first = malloc(sizeof(node_t));
+      new_first->v = max;
+      new_first->point.i = symetric_dimensions.point.i;
+      new_first->point.j = symetric_dimensions.point.j;
+      new_first->next = hashmap[hash_tablet(symetric_dimensions.m, symetric_dimensions.n)];
+      hashmap[hash_tablet(symetric_dimensions.m, symetric_dimensions.n)] = new_first;
    }
    return max;
 }

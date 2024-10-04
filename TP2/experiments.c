@@ -18,7 +18,7 @@ void generate_experimentations()
    FILE *memory_file = fopen("./gnuplot/memory.dat", "w");
    FILE *time_file = fopen("./gnuplot/time.dat", "w");
 
-   long int sum_memory_dynamic, sum_memory_dynamic_symetric, sum_memory_hashmap;
+   long sum_memory_dynamic, sum_memory_dynamic_symetric, sum_memory_hashmap;
    double sum_time_dynamic, sum_time_dynamic_symetric, sum_time_hashmap;
    for (int i = 1; i < tablet.m - 1; i++)
    {
@@ -58,15 +58,28 @@ void generate_experimentations()
 
       sprintf(buf, "%d %lf %lf %lf\n", tablet.point.i, cpu_time_used_dynamic, cpu_time_used_dynamic_symetric, cpu_time_used_hashmap);
       fwrite(buf, strlen(buf), 1, time_file);
+
+      printf("%d\n", i);
    }
    fclose(memory_file);
    fclose(time_file);
 
-   double symetric_acceleration = 100 * sum_time_dynamic / sum_time_dynamic_symetric;
-   double symetric_memory_percent = (double)sum_memory_dynamic_symetric * 100 / (double)sum_memory_dynamic;
-   double hashmap_memory_percent = (double)sum_memory_dynamic * 100 / (double)sum_memory_hashmap;
-   double symetric_acceleration_over_hashmap = 100 * sum_time_hashmap / sum_time_dynamic_symetric;
-   printf("Mémoire gagnée par les symétries (en %%) : %lf, accélération : %lf\nMémoire gagnée avec la hashmap (en %%) : %lf, accélération par le tableau et symétrie : %lf\n", symetric_memory_percent, symetric_acceleration, hashmap_memory_percent, symetric_acceleration_over_hashmap);
+   sum_memory_dynamic = sum_memory_dynamic / 1000000;
+   sum_memory_dynamic_symetric = sum_memory_dynamic_symetric / 1000000;
+   sum_memory_hashmap = sum_memory_hashmap / 1000000;
+
+   printf("Dynamic :\n\
+         %.2lf seconds\n\
+         %ld mo\n\n",
+          sum_time_dynamic, sum_memory_dynamic);
+   printf("Dynamic symetric :\n\
+         %.2lf seconds\n\
+         %ld mo\n\n",
+          sum_time_dynamic_symetric, sum_memory_dynamic_symetric);
+   printf("Hashmap :\n\
+         %.2lf seconds\n\
+         %ld mo\n",
+          sum_time_hashmap, sum_memory_hashmap);
 }
 
 int main()

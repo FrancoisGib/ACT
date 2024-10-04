@@ -45,6 +45,7 @@ int main(int argc, char **argv)
       cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
       printf("Basic recursive : %d, time : %lf\n", res, cpu_time_used);
    */
+
    memory_used = 0;
    start = clock();
    res = calculate_configuration_dynamic_init(tablet);
@@ -59,13 +60,13 @@ int main(int argc, char **argv)
    cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
    printf("Dynamic symetric : %d, time : %lf, memory used : %d bytes\n", res, cpu_time_used, memory_used);
 
-   /*
-    start = clock();
-    res = calculate_configuration_hash_init(tablet);
-    end = clock();
-    cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
-    printf("Hashmap : %d, time : %lf\n", res, cpu_time_used);
-    */
+   memory_used = 0;
+   start = clock();
+   res = calculate_configuration_hash_init(tablet);
+   end = clock();
+   cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
+   printf("Hashmap : %d, time : %lf, memory used : %d bytes\n", res, cpu_time_used, memory_used);
+
    // game(tablet);
    return 0;
 }
