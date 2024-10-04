@@ -364,20 +364,11 @@ void print_tablet(tablet_t tablet)
 #define TABLE_1 4093
 #define BASE_1 4091
 
-#define TABLE_2 8191
-#define BASE_2 8179
+#define TABLE_2 16411
+#define BASE_2 16381
 
-#define TABLE_3 16411
-#define BASE_3 16381
-
-#define TABLE_4 32771
-#define BASE_4 32749
-
-#define TABLE_5 65537
-#define BASE_5 65521
-
-#define TABLE_6 98317
-#define BASE_6 98299
+#define TABLE_3 65537
+#define BASE_3 65521
 
 #define TABLE_SIZE TABLE_1
 #define BASE BASE_1
