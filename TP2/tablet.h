@@ -10,6 +10,8 @@ typedef struct
     int j;
 } point_t;
 
+typedef point_t tuple_t;
+
 typedef struct
 {
     int m;
@@ -17,11 +19,13 @@ typedef struct
     point_t point;
 } tablet_t;
 
-typedef struct
+struct node_s
 {
-    tablet_t tablet;
-    int v;
-} move_t;
+    int16_t v;
+    int hash;
+    struct node_s *next;
+};
+typedef struct node_s node_t;
 
 int calculate_max(int configurations_res[], int n);
 void add_all_next_tablets_i(tablet_t current_tablet, tablet_t tablets[]);
@@ -34,3 +38,5 @@ int calculate_configuration_dynamic_symetric(tablet_t tablet, int16_t ****tab);
 int calculate_configuration_dynamic_init_symetric(tablet_t tablet);
 void game(tablet_t tablet);
 void print_tablet(tablet_t tablet);
+int calculate_configuration_hash_init(tablet_t tablet);
+int calculate_configuration_hash(tablet_t tablet, node_t *hashmap[tablet.m * tablet.n + 1]);

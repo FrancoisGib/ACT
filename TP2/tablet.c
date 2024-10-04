@@ -1,5 +1,7 @@
 #include "tablet.h"
 
+extern int memory_used;
+
 int calculate_max(int configurations_res[], int n)
 {
    int max = configurations_res[0];
@@ -153,7 +155,7 @@ void calculate_all_configurations_equals_x(tablet_t tablet, int x)
    {
       tablet.point.i = i;
       tablet.point.j = j;
-      res = calculate_configuration_dynamic(tablet, array);
+      res = calculate_configuration_dynamic_symetric(tablet, array);
       if (res == x)
       {
          printf("(%d, %d), (%d, %d)\n", m, n, i, j);
@@ -162,7 +164,7 @@ void calculate_all_configurations_equals_x(tablet_t tablet, int x)
 
       tablet.point.i = m - i - 1;
       tablet.point.j = n - j - 1;
-      res = calculate_configuration_dynamic(tablet, array);
+      res = calculate_configuration_dynamic_symetric(tablet, array);
       if (res == x)
       {
          printf("(%d, %d), (%d, %d)\n", m, n, m - i - 1, n - j - 1);
@@ -234,11 +236,11 @@ int calculate_configuration_dynamic_init_symetric(tablet_t tablet)
 
    int16_t ****array = init_array(symetric_dimensions.m, symetric_dimensions.n, symetric_dimensions.point.i + 1, symetric_dimensions.point.j + 1);
    int res = calculate_configuration_dynamic_symetric(tablet, array);
-   free_array(array, symetric_dimensions.m, symetric_dimensions.n, symetric_dimensions.point.i, symetric_dimensions.point.j);
+   free_array(array, symetric_dimensions.m, symetric_dimensions.n, symetric_dimensions.point.i + 1, symetric_dimensions.point.j + 1);
    return res;
 }
 
-point_t calculate_max_index(int configurations_res[], int n)
+tuple_t calculate_max_index(int configurations_res[], int n)
 {
    int max = configurations_res[0];
    int index = 0;
@@ -272,7 +274,8 @@ point_t calculate_max_index(int configurations_res[], int n)
          }
       }
    }
-   return (point_t){index, max};
+
+   return (tuple_t){index, max};
 }
 
 void game(tablet_t tablet)
@@ -329,7 +332,7 @@ void game(tablet_t tablet)
          {
             configurations_res[i] = calculate_configuration_dynamic_symetric(tablets[i], array);
          }
-         point_t max_index = calculate_max_index(configurations_res, tablet.m - 1 + tablet.n - 1);
+         tuple_t max_index = calculate_max_index(configurations_res, tablet.m - 1 + tablet.n - 1);
          tablet = tablets[max_index.i];
          array[symetric_dimensions.m][symetric_dimensions.n][symetric_dimensions.point.i][symetric_dimensions.point.j] = max_index.j;
          printf("La valeur de la configuration jouée est de %d\n", max_index.j);
@@ -345,20 +348,102 @@ void print_tablet(tablet_t tablet)
 {
    for (int i = 0; i < tablet.n; i++)
    {
-      char line[tablet.m * 5 + 1];
-      memset(line, '-', tablet.m * 5);
-
       for (int j = 0; j < tablet.m; j++)
       {
          if (i == tablet.point.i && j == tablet.point.j)
          {
-            printf(" |X| ");
+            printf("%s", " ☠️ ");
          }
          else
          {
-            printf(" | | ");
+            printf("%s", " ■ ");
          }
       }
-      printf("\n%s\n", line);
+      printf("\n");
    }
+}
+
+int calculate_configuration_hash_init(tablet_t tablet)
+{
+   memory_used += sizeof(node_t *) * (tablet.m * tablet.n);
+   node_t *hashmap[tablet.m * tablet.n + 1];
+   memset(hashmap, 0, (tablet.m * tablet.n + 1) * sizeof(node_t *));
+   int res = calculate_configuration_hash(tablet, hashmap);
+   for (int i = 0; i < tablet.m * tablet.n + 1; i++)
+   {
+      if (hashmap[i] != NULL)
+      {
+         node_t *linked_list = hashmap[i];
+         node_t *temp;
+         while (linked_list != NULL)
+         {
+            memory_used += sizeof(node_t);
+            temp = linked_list->next;
+            free(linked_list);
+            linked_list = temp;
+         }
+      }
+   }
+   return res;
+}
+
+int calculate_configuration_hash(tablet_t tablet, node_t *hashmap[])
+{
+   if (tablet.m == 1 && tablet.n == 1)
+   {
+      return 0;
+   }
+
+   tablet_t symetric_dimensions = get_symetric_tablet_dimension(tablet);
+
+   node_t *linked_list = hashmap[symetric_dimensions.m * symetric_dimensions.n];
+   while (linked_list != NULL)
+   {
+      if (linked_list->hash == symetric_dimensions.point.i * symetric_dimensions.point.j && linked_list->v != 0)
+      {
+         return linked_list->v;
+      }
+      linked_list = linked_list->next;
+   }
+
+   tablet_t tablets[tablet.m + tablet.n - 1];
+   add_all_next_tablets_i(tablet, tablets);
+   add_all_next_tablets_j(tablet, &tablets[tablet.m - 1]);
+
+   int configurations_res[tablet.m + tablet.n - 1];
+   for (int i = 0; i < tablet.m - 1 + tablet.n - 1; i++) // plus clair que -2 directement
+   {
+      configurations_res[i] = calculate_configuration_hash(tablets[i], hashmap);
+   }
+   int max = calculate_max(configurations_res, tablet.m - 1 + tablet.n - 1);
+
+   if (hashmap[symetric_dimensions.m * symetric_dimensions.n] == NULL)
+   {
+      node_t *new_list = malloc(sizeof(node_t));
+      new_list->hash = symetric_dimensions.point.i * symetric_dimensions.point.j;
+      new_list->v = max;
+      new_list->next = NULL;
+      hashmap[symetric_dimensions.m * symetric_dimensions.n] = new_list;
+   }
+   else
+   {
+      char found = 0;
+      while (!found && linked_list != NULL)
+      {
+         if (linked_list->hash == symetric_dimensions.point.i * symetric_dimensions.point.j)
+         {
+            found = 1;
+         }
+         linked_list = linked_list->next;
+      }
+      if (!found)
+      {
+         node_t *new_first = malloc(sizeof(node_t));
+         new_first->v = max;
+         new_first->hash = symetric_dimensions.point.i * symetric_dimensions.point.j;
+         new_first->next = hashmap[symetric_dimensions.m * symetric_dimensions.n];
+         hashmap[symetric_dimensions.m * symetric_dimensions.n] = new_first;
+      }
+   }
+   return max;
 }

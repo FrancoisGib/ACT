@@ -13,15 +13,13 @@ void generate_experimentations()
    tablet.point.j = 25;
    int res;
    clock_t start, end;
-   double cpu_time_used_dynamic, cpu_time_used_dynamic_symetric;
+   double cpu_time_used_dynamic, cpu_time_used_dynamic_symetric, cpu_time_used_hashmap;
 
    FILE *memory_file = fopen("./gnuplot/memory.dat", "w");
    FILE *time_file = fopen("./gnuplot/time.dat", "w");
 
-   int sum_memory_dynamic = 0;
-   int sum_memory_dynamic_symetric = 0;
-   double sum_time_dynamic = 0;
-   double sum_time_dynamic_symetric = 0;
+   long int sum_memory_dynamic, sum_memory_dynamic_symetric, sum_memory_hashmap;
+   double sum_time_dynamic, sum_time_dynamic_symetric, sum_time_hashmap;
    for (int i = 1; i < tablet.m - 1; i++)
    {
       tablet.point.i = i;
@@ -45,11 +43,20 @@ void generate_experimentations()
       sum_memory_dynamic_symetric += dynamic_symetric_memory_used;
       sum_time_dynamic_symetric += cpu_time_used_dynamic_symetric;
 
+      memory_used = 0;
+      start = clock();
+      calculate_configuration_hash_init(tablet);
+      end = clock();
+      cpu_time_used_hashmap = ((double)(end - start)) / CLOCKS_PER_SEC;
+      int hashmap_memory_used = memory_used;
+      sum_memory_hashmap += hashmap_memory_used;
+      sum_time_hashmap += cpu_time_used_hashmap;
+
       char buf[128];
-      sprintf(buf, "%d %d %d\n", tablet.point.i, dynamic_memory_used, dynamic_symetric_memory_used);
+      sprintf(buf, "%d %d %d %d\n", tablet.point.i, dynamic_memory_used, dynamic_symetric_memory_used, hashmap_memory_used);
       fwrite(buf, strlen(buf), 1, memory_file);
 
-      sprintf(buf, "%d %lf %lf\n", tablet.point.i, cpu_time_used_dynamic, cpu_time_used_dynamic_symetric);
+      sprintf(buf, "%d %lf %lf %lf\n", tablet.point.i, cpu_time_used_dynamic, cpu_time_used_dynamic_symetric, cpu_time_used_hashmap);
       fwrite(buf, strlen(buf), 1, time_file);
    }
    fclose(memory_file);
@@ -57,7 +64,9 @@ void generate_experimentations()
 
    double symetric_acceleration = 100 * sum_time_dynamic / sum_time_dynamic_symetric;
    double symetric_memory_percent = (double)sum_memory_dynamic_symetric * 100 / (double)sum_memory_dynamic;
-   printf("Mémoire gagnée en pourcentage : %lf, accélération : %lf\n", symetric_memory_percent, symetric_acceleration);
+   double hashmap_memory_percent = (double)sum_memory_dynamic * 100 / (double)sum_memory_hashmap;
+   double symetric_acceleration_over_hashmap = 100 * sum_time_hashmap / sum_time_dynamic_symetric;
+   printf("Mémoire gagnée par les symétries (en %%) : %lf, accélération : %lf\nMémoire gagnée avec la hashmap (en %%) : %lf, accélération par le tableau et symétrie : %lf\n", symetric_memory_percent, symetric_acceleration, hashmap_memory_percent, symetric_acceleration_over_hashmap);
 }
 
 int main()
