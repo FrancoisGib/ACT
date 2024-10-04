@@ -59,7 +59,7 @@ void generate_experimentations()
       sprintf(buf, "%d %lf %lf %lf\n", tablet.point.i, cpu_time_used_dynamic, cpu_time_used_dynamic_symetric, cpu_time_used_hashmap);
       fwrite(buf, strlen(buf), 1, time_file);
 
-      printf("%d\n", i);
+      printf("(%d, %d)\n", i, tablet.m - 1 - i);
    }
    fclose(memory_file);
    fclose(time_file);

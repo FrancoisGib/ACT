@@ -361,21 +361,31 @@ void print_tablet(tablet_t tablet)
    }
 }
 
+/*
+unsigned long hash_tablet(int m, int n)
+{
+   return ((m * BASE) % TABLE_SIZE * BASE + n) % TABLE_SIZE;
+}*/
+
 #define TABLE_1 4093
 #define BASE_1 4091
 
 #define TABLE_2 16411
 #define BASE_2 16381
 
-#define TABLE_3 65537
-#define BASE_3 65521
+#define TABLE_3 32771
+#define BASE_3 32759
 
-#define TABLE_SIZE TABLE_1
-#define BASE BASE_1
+#ifndef TABLE_SIZE
+#define TABLE_SIZE TABLE_3
+#endif
 
-unsigned long hash_tablet(int m, int n)
+unsigned int hash_tablet(tablet_t tablet)
 {
-   return ((m * BASE) % TABLE_SIZE * BASE + n) % TABLE_SIZE;
+   int hash = (tablet.m * BASE_1 + tablet.n) % TABLE_SIZE;
+   hash = (hash * BASE_2 + tablet.point.i) % TABLE_SIZE;
+   hash = (hash * BASE_3 + tablet.point.j) % TABLE_SIZE;
+   return hash;
 }
 
 int calculate_configuration_hash_init(tablet_t tablet)
@@ -410,8 +420,8 @@ int calculate_configuration_hash(tablet_t tablet, node_t *hashmap[])
    }
 
    tablet_t symetric_dimensions = get_symetric_tablet_dimension(tablet);
-
-   node_t *linked_list = hashmap[hash_tablet(symetric_dimensions.m, symetric_dimensions.n)];
+   unsigned int hash = hash_tablet(symetric_dimensions);
+   node_t *linked_list = hashmap[hash];
    while (linked_list != NULL)
    {
       if (linked_list->point.i == symetric_dimensions.point.i && linked_list->point.j == symetric_dimensions.point.j)
@@ -432,14 +442,14 @@ int calculate_configuration_hash(tablet_t tablet, node_t *hashmap[])
    }
    int max = calculate_max(configurations_res, tablet.m - 1 + tablet.n - 1);
 
-   if (hashmap[hash_tablet(symetric_dimensions.m, symetric_dimensions.n)] == NULL)
+   if (hashmap[hash_tablet(symetric_dimensions)] == NULL)
    {
       node_t *new_list = malloc(sizeof(node_t));
       new_list->point.i = symetric_dimensions.point.i;
       new_list->point.j = symetric_dimensions.point.j;
       new_list->v = max;
       new_list->next = NULL;
-      hashmap[hash_tablet(symetric_dimensions.m, symetric_dimensions.n)] = new_list;
+      hashmap[hash] = new_list;
    }
    else
    {
@@ -456,8 +466,8 @@ int calculate_configuration_hash(tablet_t tablet, node_t *hashmap[])
       new_first->v = max;
       new_first->point.i = symetric_dimensions.point.i;
       new_first->point.j = symetric_dimensions.point.j;
-      new_first->next = hashmap[hash_tablet(symetric_dimensions.m, symetric_dimensions.n)];
-      hashmap[hash_tablet(symetric_dimensions.m, symetric_dimensions.n)] = new_first;
+      new_first->next = hashmap[hash];
+      hashmap[hash] = new_first;
    }
    return max;
 }

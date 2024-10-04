@@ -39,4 +39,4 @@ int calculate_configuration_dynamic_init_symetric(tablet_t tablet);
 void game(tablet_t tablet);
 void print_tablet(tablet_t tablet);
 int calculate_configuration_hash_init(tablet_t tablet);
-int calculate_configuration_hash(tablet_t tablet, node_t *hashmap[tablet.m * tablet.n + 1]);
+int calculate_configuration_hash(tablet_t tablet, node_t *hashmap[]);
