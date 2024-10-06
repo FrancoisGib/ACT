@@ -119,8 +119,11 @@ On a une complexité en $0(m * n * i'' * j'')$
 
 D'après les expérimentations (voir _experiments.c_), on a une accélération du programme d'environ 230% et on utilise environ 50% de mémoire en moins en utilisant les symétries.
 
-![Memory consumption](./memory_consumption.png)
+![Memory consumption](./images/memory_consumption.png)
 
 La mémoire est multipliée par deux car on utilise des entiers de deux octets dans le tableau (int16_t).
 
-![Time consumption](./cpu_time_consumption.png)
+![Time consumption](./images/cpu_time_consumption.png)
+
+
+![Time consumption](./images/comparison.png)

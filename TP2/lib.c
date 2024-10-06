@@ -15,10 +15,7 @@ int16_t ****init_array(int m, int n, int i, int j)
          for (int k = 0; k <= i; k++)
          {
             tab[x][y][k] = malloc((j + 1) * sizeof(int16_t));
-            for (int l = 0; l <= j; l++)
-            {
-               tab[x][y][k][l] = 0;
-            }
+            memset(tab[x][y][k], 0, j * sizeof(int16_t));
          }
       }
    }

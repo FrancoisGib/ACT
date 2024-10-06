@@ -1,5 +1,5 @@
 set terminal png size 800,500 enhanced background rgb 'white
-set output './memory_consumption.png'
+set output './images/memory_consumption.png'
 
 set title 'Memory consumption'
 set xrange [0:]
