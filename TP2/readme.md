@@ -29,7 +29,7 @@ On aurait x + y - 2 configurations différentes.
 
 On prend le 1 - max(successeurs) dans le cas où tous les successeurs sont positifs, sinon on prend 1 - max(successeurs) parmi les successeurs négatifs.
 
-$P(successors) =
+$MAX(successors) =
      \begin{cases}
        0 & \text{si x = 0} \\
        1 - \max(negsuccessors) & \exists x \in successors, x < 0; negsuccessors \subset successors \cap Z^− \\
