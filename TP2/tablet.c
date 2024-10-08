@@ -90,9 +90,9 @@ int calculate_max(int configurations_res[], int n)
 
 void print_tablet(tablet_t tablet)
 {
-   for (int i = 0; i < tablet.n; i++)
+   for (int j = 0; j < tablet.n; j++)
    {
-      for (int j = 0; j < tablet.m; j++)
+      for (int i = 0; i < tablet.m; i++)
       {
          if (i == tablet.point.i && j == tablet.point.j)
          {
@@ -229,6 +229,7 @@ tablet_t get_symetric_tablet_dimension(tablet_t tablet)
    j = MIN(j, n - 1 - j);
    return (tablet_t){m, n, {i, j}};
 }
+
 int calculate_configuration_dynamic_symetric(tablet_t tablet, int16_t ****tab)
 {
    if (tablet.m == 1 && tablet.n == 1)
@@ -259,10 +260,10 @@ int calculate_configuration_dynamic_symetric(tablet_t tablet, int16_t ****tab)
 int calculate_configuration_dynamic_init_symetric(tablet_t tablet)
 {
    tablet_t symetric_dimensions = get_symetric_tablet_dimension(tablet);
-   int m = symetric_dimensions.m - 1;
-   int n = symetric_dimensions.n - 1;
-   int i = MIN(symetric_dimensions.m / 2, tablet.point.i + 1);
-   int j = MIN(symetric_dimensions.n / 2, tablet.point.j + 1);
+   int m = symetric_dimensions.m - 1 / 2;
+   int n = symetric_dimensions.n - 1 / 2;
+   int i = symetric_dimensions.point.i + 1;
+   int j = symetric_dimensions.point.j + 1;
    int16_t ****array = init_array(m, n, i, j);
    int res = calculate_configuration_dynamic_symetric(tablet, array);
    free_array(array, m, n, i, j);
@@ -273,6 +274,7 @@ int calculate_configuration_dynamic_init_symetric(tablet_t tablet)
 
 int table_size = TABLE_3; // Change the hash depending on the tablet size.
                           // TABLE_1 for m and n < 25, TABLE_2 < 50, and TABLE_3 < 150
+                          // it's more than that actually what matters also is the range between i and j in the tablet point
 
 unsigned int hash_tablet(tablet_t tablet)
 {
@@ -370,43 +372,57 @@ void game(tablet_t tablet)
 {
    int player = 1;
    int m, n, i, j;
-
+   char played = 0;
    while (tablet.m > 1 || tablet.n > 1)
    {
       if (player == 1)
       {
          char c;
          int i;
-         printf("Enter h or v and a number\n");
+         printf("Enter h (horizontal) or v (vertical) and a number\n");
          scanf("%c %d", &c, &i);
          if (c == 'h')
          {
-            if (i <= tablet.point.i)
+            if (i < tablet.m)
             {
-               tablet.m = tablet.m - i;
-               tablet.point.i = tablet.point.i - i;
+               if (i <= tablet.point.i)
+               {
+                  tablet.m = tablet.m - i;
+                  tablet.point.i = tablet.point.i - i;
+               }
+               else
+               {
+                  tablet.m = i;
+               }
+               played = 1;
             }
             else
             {
-               tablet.m = i;
+               played = 0;
             }
          }
          else if (c == 'v')
          {
-            if (i <= tablet.point.j)
+            if (i < tablet.n)
             {
-               tablet.n = tablet.n - i;
-               tablet.point.j = tablet.point.j - i;
+               if (i <= tablet.point.j)
+               {
+                  tablet.n = tablet.n - i;
+                  tablet.point.j = tablet.point.j - i;
+               }
+               else
+               {
+                  tablet.n = i;
+               }
+               player = -player;
+               printf("The value of the played configuration is %d\n", calculate_configuration_dynamic_init_symetric(tablet));
             }
             else
             {
-               tablet.n = i;
+               played = 0;
             }
          }
-         printf("La valeur de la configuration jouée est de %d\n", calculate_configuration_dynamic_init_symetric(tablet));
-         player = -player;
       }
-
       else
       {
          tablet_t symetric_dimensions = get_symetric_tablet_dimension(tablet);
@@ -423,11 +439,19 @@ void game(tablet_t tablet)
          tuple_t max_index = calculate_max_with_index(configurations_res, tablet.m - 1 + tablet.n - 1);
          tablet = tablets[max_index.i];
          array[symetric_dimensions.m][symetric_dimensions.n][symetric_dimensions.point.i][symetric_dimensions.point.j] = max_index.j;
-         printf("La valeur de la configuration jouée est de %d\n", max_index.j);
-         player = -player;
+         played = 1;
          free_array(array, symetric_dimensions.m, symetric_dimensions.n, symetric_dimensions.point.i + 1, symetric_dimensions.point.j + 1);
       }
-      printf("Les dimensions de la tablette sont maintenant de (%d, %d), (%d, %d)\n\n", tablet.m, tablet.n, tablet.point.i, tablet.point.j);
-      print_tablet(tablet);
+      if (played)
+      {
+         player = -player;
+         printf("The value of the played configuration is %d\n", calculate_configuration_dynamic_init_symetric(tablet));
+         printf("The tablet dimensions are now (%d, %d), (%d, %d)\n\n", tablet.m, tablet.n, tablet.point.i, tablet.point.j);
+         print_tablet(tablet);
+      }
+      else
+      {
+         printf("Please enter a valid input\n");
+      }
    }
 }

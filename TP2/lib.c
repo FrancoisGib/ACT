@@ -38,21 +38,3 @@ void free_array(int16_t ****array, int m, int n, int i, int j)
    }
    free(array);
 }
-
-void print_array(int16_t ****array, int m, int n, int i, int j)
-{
-   for (int x = 0; x < m; x++)
-   {
-      printf("\n");
-      for (int y = 0; y < n; y++)
-      {
-         for (int k = 0; k < i; k++)
-         {
-            for (int l = 0; l < j; l++)
-            {
-               printf("%d ", array[x][y][k][l]);
-            }
-         }
-      }
-   }
-}
