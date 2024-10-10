@@ -414,8 +414,7 @@ void game(tablet_t tablet)
                {
                   tablet.n = i;
                }
-               player = -player;
-               printf("The value of the played configuration is %d\n", calculate_configuration_dynamic_init_symetric(tablet));
+               played = 1;
             }
             else
             {

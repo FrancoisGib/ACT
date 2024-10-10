@@ -66,6 +66,6 @@ int main(int argc, char **argv)
    cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
    printf("Hashmap : %d, time : %lf seconds, memory used : %d bytes\n", res, cpu_time_used, memory_used);
 
-   game(tablet);
+   // game(tablet);
    return 0;
 }

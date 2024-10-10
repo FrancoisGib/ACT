@@ -16,4 +16,4 @@ plot: experiments gnuplot/memory_plot.gnu gnuplot/time_plot.gnu gnuplot/time.dat
 	gnuplot gnuplot/time_plot.gnu
 
 clean:
-	rm *.o main experiments gnuplot/*.dat
+	rm -f *.o main experiments gnuplot/*.dat
