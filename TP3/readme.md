@@ -38,3 +38,17 @@ Q3.1) $k^n$ certificats (on a k choix possibles pour n objects donc $k*k*k*k*k..
 Q3.2) On peut utiliser l'ordre lexicographique pour énumérer les certificats; Pour 2 objets et 3 sacs, le premier certificat est [0,0], ensuite [0,1], [0,2], [1,0], [1,1], [1,2], [2,0] [2,1], [2,2].
 
 Q3.3) On teste tous les certificats précédents, dans l'ordre lexicographique inversé, jusqu'à trouver un certificat valide, ou arriver au certificat le plus petit.
+
+Fonction Arrangements(n, k)
+    Ank = 1   
+    Si k < 0 ou k > n alors
+        Retourner 0          
+    Fin Si                    
+    // Calcul de Ank (boucle de i = n - k + 1 à n)
+    i = n - k + 1
+    Tant que i < n + 1
+        Ank = Ank * i
+        i = i + 1 
+        Fin tant que
+        Retourner Ank 
+        Fin fonction

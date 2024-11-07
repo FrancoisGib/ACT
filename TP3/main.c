@@ -4,20 +4,20 @@
 #include <time.h>
 #include <math.h>
 
-void print_array(int *array, int n)
-{
-    for (int i = 0; i < n; i++)
-    {
-        printf("%d ", array[i]);
-    }
-    printf("\n");
-}
-
 typedef struct
 {
     int nb_bags;
     int max_bag_weight;
 } bin_packs_t;
+
+void print_certificate(int cert[], int nb_objects)
+{
+    for (int i = 0; i < nb_objects; i++)
+    {
+        printf("%d ", cert[i]);
+    }
+    printf("\n");
+}
 
 int verify_certificate(int *certificate, int cert_size, int *objects, int nb_objects, bin_packs_t bags)
 {
@@ -53,44 +53,22 @@ int *generate_random_certificate(int nb_objects, int nb_bags)
     return certificate;
 }
 
-void enumerate_cell(int *certificate, int n, int nb_bags, int nb_objects)
-{
-    for (int i = 0; i < nb_bags; i++)
-    {
-        certificate[n - 1]++;
-        print_array(certificate, nb_objects);
-    }
-    // printf("arr ");
-    // certificate[n] = 0;
-}
-
-void enumerate_column(int *certificate, int n, int nb_bags, int nb_objects)
-{
-    certificate[n] = 0;
-    enumerate_cell(certificate, n + 1, nb_bags, nb_objects);
-    print_array(certificate, nb_objects);
-    // for (int i = 0; i < nb_bags; i++)
-    // {
-    //     certificate[n]++;
-    //     enumerate_cell(certificate, i + n + 1, nb_bags, nb_objects);
-    //     print_array(certificate, nb_objects);
-    // }
-    // for (int i = 0; i < nb_objects - n; i++)
-    // {
-    //     enumerate_cell(certificate, i + n, nb_bags, nb_objects);
-    // }
-}
-
 void enumerate_certificates(int nb_objects, int nb_bags)
 {
-    int certificate[nb_objects];
-    memset(certificate, 0, sizeof(int) * nb_objects);
+    int cert[nb_objects];
+    memset(cert, 0, sizeof(int) * nb_objects);
 
-    print_array(certificate, nb_objects);
-    for (int j = nb_objects - 1; j >= 0; j--)
+    int i = nb_objects - 1;
+    while (i >= 0) // nb_bags^nb_objects tours
     {
-        // memset(&certificate[j + 1], 0, sizeof(int) * (nb_objects - 1 - j));
-        enumerate_column(certificate, j, nb_bags, nb_objects);
+        print_certificate(cert, nb_objects);
+        i = nb_objects - 1;
+        while (cert[i] == nb_bags - 1)
+        {
+            cert[i] = 0; // on remet à 0 si on atteint le nombre de sacs - 1, si on l'a fait pour tous les objets, alors on a fini.
+            i--;
+        }
+        cert[i]++;
     }
 }
 
@@ -108,10 +86,10 @@ int main()
     printf("%d\n\n", verify_certificate(certificate, cert_size, objects, nb_objects, bags));
 
     int *random_certificate = generate_random_certificate(nb_objects, bags.nb_bags);
-    print_array(random_certificate, nb_objects);
+    print_certificate(random_certificate, nb_objects);
     free(random_certificate);
 
     printf("\n");
 
-    enumerate_certificates(3, 2);
+    enumerate_certificates(2, 3);
 }
