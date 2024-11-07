@@ -53,15 +53,22 @@ int *generate_random_certificate(int nb_objects, int nb_bags)
     return certificate;
 }
 
-void enumerate_certificates(int nb_objects, int nb_bags)
+int **enumerate_certificates(int nb_objects, int nb_bags)
 {
     int cert[nb_objects];
     memset(cert, 0, sizeof(int) * nb_objects);
 
+    int nb_certificates = pow(nb_bags, nb_objects);
+    int **certificates = malloc(sizeof(int *) * nb_certificates);
+
+    int cpt = 0;
     int i = nb_objects - 1;
-    while (i >= 0) // nb_bags^nb_objects tours
+    while (cpt < nb_certificates) // nb_bags^nb_objects tours
     {
-        print_certificate(cert, nb_objects);
+        int *certificate = malloc(sizeof(int) * nb_objects);
+        memcpy(certificate, cert, sizeof(int) * nb_objects);
+        certificates[cpt] = certificate;
+        cpt++;
         i = nb_objects - 1;
         while (cert[i] == nb_bags - 1)
         {
@@ -70,6 +77,41 @@ void enumerate_certificates(int nb_objects, int nb_bags)
         }
         cert[i]++;
     }
+    return certificates;
+}
+
+void free_certificates_list(int **certificates, int n)
+{
+    for (int i = 0; i < n; i++)
+        free(certificates[i]);
+    free(certificates);
+}
+
+int partition(int *elements, int n)
+{
+    int **certificates = enumerate_certificates(n, 2);
+    int nb_certificates = pow(2, n);
+
+    int sum = 0;
+    for (int i = 0; i < n; i++)
+    {
+        sum += elements[i];
+    }
+
+    bin_packs_t binpack = {2, sum / 2 + sum % 2};
+
+    for (int i = 0; i < nb_certificates; i++)
+    {
+
+        if (verify_certificate(certificates[i], n, elements, n, binpack))
+        {
+            free_certificates_list(certificates, nb_certificates);
+            return 1;
+        }
+    }
+
+    free_certificates_list(certificates, nb_certificates);
+    return 0;
 }
 
 int main()
@@ -85,11 +127,14 @@ int main()
 
     printf("%d\n\n", verify_certificate(certificate, cert_size, objects, nb_objects, bags));
 
-    int *random_certificate = generate_random_certificate(nb_objects, bags.nb_bags);
-    print_certificate(random_certificate, nb_objects);
-    free(random_certificate);
-
+    // int *random_certificate = generate_random_certificate(nb_objects, bags.nb_bags);
+    // print_certificate(random_certificate, nb_objects);
+    // free(random_certificate);
     printf("\n");
 
-    enumerate_certificates(2, 3);
+    int elements[] = {1, 2, 3, 4, 4, 3, 2, 1};
+    int nb_elements = sizeof(elements) / sizeof(int);
+    // // partition(elements, nb_elements);
+    int res = partition(elements, nb_elements);
+    printf("res: %d\n", res);
 }
