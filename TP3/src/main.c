@@ -38,7 +38,6 @@ int verify_certificate(int *certificate, int cert_size, int *objects, int nb_obj
             return 0;
         }
     }
-
     return 1;
 }
 
@@ -70,7 +69,7 @@ int **enumerate_certificates(int nb_objects, int nb_bags)
         certificates[cpt] = certificate;
         cpt++;
         i = nb_objects - 1;
-        while (cert[i] == nb_bags - 1)
+        while (i >= 0 && cert[i] == nb_bags - 1)
         {
             cert[i] = 0; // on remet à 0 si on atteint le nombre de sacs - 1, si on l'a fait pour tous les objets, alors on a fini.
             i--;
@@ -98,13 +97,14 @@ int partition(int *elements, int n)
         sum += elements[i];
     }
 
-    bin_packs_t binpack = {2, sum / 2 + sum % 2};
+    bin_packs_t binpack = {.nb_bags = 2, .max_bag_weight = sum / 2 + sum % 2};
 
     for (int i = 0; i < nb_certificates; i++)
     {
 
         if (verify_certificate(certificates[i], n, elements, n, binpack))
         {
+            print_certificate(certificates[i], n);
             free_certificates_list(certificates, nb_certificates);
             return 1;
         }
@@ -114,7 +114,7 @@ int partition(int *elements, int n)
     return 0;
 }
 
-int main()
+int main(void)
 {
     int objects[] = {3, 2, 4, 3, 3};
     int nb_objects = sizeof(objects) / sizeof(int);
@@ -127,14 +127,24 @@ int main()
 
     printf("%d\n\n", verify_certificate(certificate, cert_size, objects, nb_objects, bags));
 
-    // int *random_certificate = generate_random_certificate(nb_objects, bags.nb_bags);
-    // print_certificate(random_certificate, nb_objects);
-    // free(random_certificate);
+    int *random_certificate = generate_random_certificate(nb_objects, bags.nb_bags);
+    print_certificate(random_certificate, nb_objects);
+    free(random_certificate);
+
     printf("\n");
 
-    int elements[] = {1, 2, 3, 4, 4, 3, 2, 1};
+    int power = pow(3, 3);
+    int **certificates = enumerate_certificates(3, 3);
+    for (int i = 0; i < power; i++)
+    {
+        print_certificate(certificates[i], 3);
+    }
+    free_certificates_list(certificates, power);
+
+    printf("\n");
+
+    int elements[] = {1, 2, 3, 4, 1, 2, 1};
     int nb_elements = sizeof(elements) / sizeof(int);
-    // // partition(elements, nb_elements);
     int res = partition(elements, nb_elements);
     printf("res: %d\n", res);
 }
