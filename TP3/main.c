@@ -98,20 +98,38 @@ int partition(int *elements, int n)
         sum += elements[i];
     }
 
-    bin_packs_t binpack = {2, sum / 2 + sum % 2};
-
-    for (int i = 0; i < nb_certificates; i++)
+    bin_packs_t binpack = {2, sum / 2};
+    int res = 0;
+    int i = 0;
+    while (i < nb_certificates)
     {
-
         if (verify_certificate(certificates[i], n, elements, n, binpack))
         {
-            free_certificates_list(certificates, nb_certificates);
-            return 1;
+            res = 1;
         }
+        i++;
     }
 
     free_certificates_list(certificates, nb_certificates);
-    return 0;
+    return res;
+}
+
+int sum_red(int *elements, int n, int c)
+{
+    int sum_elements = 0;
+    for (int i = 0; i < n; i++)
+    {
+        sum_elements += elements[i];
+    }
+    if (sum_elements >= c * 2)
+    {
+        return partition(elements, n);
+    }
+    int new_element_value = 2 * c - sum_elements;
+    int new_elements_array[n + 1];
+    memcpy(new_elements_array, elements, n * sizeof(int));
+    new_elements_array[n] = new_element_value;
+    return partition(new_elements_array, n + 1);
 }
 
 int main()
@@ -134,7 +152,9 @@ int main()
 
     int elements[] = {1, 2, 3, 4, 4, 3, 2, 1};
     int nb_elements = sizeof(elements) / sizeof(int);
-    // // partition(elements, nb_elements);
     int res = partition(elements, nb_elements);
-    printf("res: %d\n", res);
+    printf("partition: %d\n", res);
+
+    res = sum_red(elements, nb_elements, 10);
+    printf("sum: %d\n", res);
 }
