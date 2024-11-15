@@ -8,7 +8,7 @@ typedef struct
 {
     int nb_bags;
     int max_bag_weight;
-} bin_packs_t;
+} bin_pack_t;
 
 void print_certificate(int cert[], int nb_objects)
 {
@@ -19,7 +19,7 @@ void print_certificate(int cert[], int nb_objects)
     printf("\n");
 }
 
-int verify_certificate(int *certificate, int cert_size, int *objects, int nb_objects, bin_packs_t bags)
+int verify_certificate(int *certificate, int cert_size, int *objects, int nb_objects, bin_pack_t bags)
 {
     if (cert_size != nb_objects)
     {
@@ -97,7 +97,7 @@ int partition(int *elements, int n)
         sum += elements[i];
     }
 
-    bin_packs_t binpack = {.nb_bags = 2, .max_bag_weight = sum / 2 + sum % 2};
+    bin_pack_t binpack = {.nb_bags = 2, .max_bag_weight = sum / 2 + sum % 2};
     int i = 0;
     int res = 0;
     while (!res && i < nb_certificates)
@@ -132,6 +132,12 @@ int sum_red(int *elements, int n, int c)
     return partition(new_elements_array, n + 1);
 }
 
+typedef struct
+{
+    int nb_bags;
+    int *bag_weights;
+} bin_pack_diff_t;
+
 int main(void)
 {
     int objects[] = {3, 2, 4, 3, 3};
@@ -141,7 +147,7 @@ int main(void)
     int certificate[] = {0, 0, 1, 2, 3};
     int cert_size = sizeof(objects) / sizeof(int);
 
-    bin_packs_t bags = {nb_bags, max_bag_weight};
+    bin_pack_t bags = {nb_bags, max_bag_weight};
 
     printf("%d\n\n", verify_certificate(certificate, cert_size, objects, nb_objects, bags));
 
