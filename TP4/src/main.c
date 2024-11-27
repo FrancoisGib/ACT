@@ -1,0 +1,186 @@
+#include "process.h"
+
+int limit_time_value_function(process_t *process)
+{
+    return process->limit_time;
+}
+
+int weight_over_time_value_function(process_t *process)
+{
+    return process->weight / process->time;
+}
+
+int sum_delay_value_function(process_t *process)
+{
+    return process->limit_time * process->weight;
+}
+
+int sum_total_delay(process_t *processes, int nb_processes, int *ordonnancement)
+{
+    int delay = 0;
+    int current_time = 0;
+    for (int i = 0; i < nb_processes; i++)
+    {
+        int task = ordonnancement[i];
+        process_t process = processes[task];
+        current_time += process.time;
+        if (current_time - process.limit_time > 0)
+            delay += (current_time - process.limit_time) * process.weight;
+    }
+    return delay;
+}
+
+void generate_random_solution(int *ordonnancement, int nb_processes)
+{
+    char already_ordonated[nb_processes];
+    memset(already_ordonated, 0, nb_processes);
+
+    int i = 0;
+    while (i < nb_processes)
+    {
+        int random = rand() % nb_processes;
+        if (!already_ordonated[random])
+        {
+            already_ordonated[random] = 1;
+            ordonnancement[random] = i;
+            i++;
+        }
+    }
+}
+
+process_file_t *parse_file(char *path)
+{
+    FILE *file = fopen(path, "r");
+    int nb_processes = 0;
+    if (fscanf(file, "%d", &nb_processes) != 1)
+    {
+        return NULL;
+    }
+    process_file_t *process_file = malloc(sizeof(process_file_t));
+    process_file->nb_processes = nb_processes;
+    process_t *processes = malloc(nb_processes * sizeof(process_t));
+    process_file->processes = processes;
+    for (int i = 0; i < nb_processes; i++)
+    {
+        int pi;
+        int wi;
+        int di;
+        if (fscanf(file, "\n%d %d %d", &pi, &wi, &di) != 3)
+        {
+            free(process_file->processes);
+            free(process_file);
+            return NULL;
+        }
+        process_t process = {pi, wi, di};
+        processes[i] = process;
+    }
+    return process_file;
+}
+
+void constructive_heuristique(int *ordonnancement, process_t *processes, int nb_processes)
+{
+    char already_taken[nb_processes];
+    memset(already_taken, 0, nb_processes);
+    int loss = 0;
+    int time = 0;
+    int index = 0;
+    for (int i = 0; i < nb_processes; i++)
+    {
+        int local_loss = INT_MAX;
+        for (int j = 0; j < nb_processes; j++)
+        {
+            if (already_taken[j])
+            {
+                continue;
+            }
+            int end_time = time + processes[j].time;
+            int delay_loss = MAX(0, processes[j].weight * (end_time - processes[j].limit_time));
+            if (delay_loss < local_loss)
+            {
+                index = j;
+                local_loss = delay_loss;
+            }
+        }
+        ordonnancement[i] = index;
+        already_taken[index] = 1;
+        time += processes[index].time;
+        loss += local_loss;
+        index = 0;
+    }
+}
+
+int main(void)
+{
+    srand(time(NULL));
+    process_t processes[] = {{5, 3, 10}, {6, 2, 10}, {12, 5, 15}};
+    process_t *processes_ptr = processes;
+    int nb_processes = sizeof(processes) / sizeof(process_t);
+
+    int ordonnancement[] = {2, 0, 1};
+    int *ordonnancement_ptr = ordonnancement;
+
+    int delay = sum_total_delay(processes_ptr, nb_processes, ordonnancement_ptr);
+    printf("Delay: %d\n", delay);
+
+    int random_ordonnancement[nb_processes];
+    int *random_ordonnancement_ptr = random_ordonnancement;
+    generate_random_solution(random_ordonnancement_ptr, nb_processes);
+
+    printf("Random ordonnancement: ");
+    for (int i = 0; i < nb_processes; i++)
+    {
+        printf("%d ", random_ordonnancement[i]);
+    }
+    printf("\n");
+
+    process_file_t *process_file = parse_file("SMTWP/n100_15_b.txt");
+
+    for (int i = 0; i < process_file->nb_processes; i++)
+    {
+        process_t process = process_file->processes[i];
+        printf("%d %d %d\n", process.time, process.weight, process.limit_time);
+    }
+
+    int random_ordonnancement2[process_file->nb_processes];
+    int *random_ordonnancement_ptr2 = random_ordonnancement2;
+    generate_random_solution(random_ordonnancement_ptr2, process_file->nb_processes);
+
+    delay = sum_total_delay(process_file->processes, process_file->nb_processes, random_ordonnancement_ptr2);
+    printf("Delay: %d\n", delay);
+
+    quicksort(process_file->processes, 0, process_file->nb_processes - 1, weight_over_time_value_function);
+    for (int i = 0; i < process_file->nb_processes; i++)
+    {
+        process_t process = process_file->processes[i];
+        printf("%d %d %d\n", process.time, process.weight, process.limit_time);
+    }
+
+    int ordonnancement_sorted[process_file->nb_processes];
+    for (int i = 0; i < process_file->nb_processes; i++)
+    {
+        ordonnancement_sorted[i] = i;
+    }
+    int *ordonnancement_sorted_ptr = ordonnancement_sorted;
+    delay = sum_total_delay(process_file->processes, process_file->nb_processes, ordonnancement_sorted_ptr);
+    printf("Delay: %d\n", delay);
+
+    // for (int i = 0; i < process_file->nb_processes; i++)
+    // {
+    //     printf("%d ", ordonnancement_sorted_ptr[i]);
+    // }
+
+    int ordonnancement_constructive_heuristique[process_file->nb_processes];
+    int *ordonnancement_constructive_heuristique_ptr = ordonnancement_constructive_heuristique;
+    constructive_heuristique(ordonnancement_constructive_heuristique_ptr, process_file->processes, process_file->nb_processes);
+    delay = sum_total_delay(process_file->processes, process_file->nb_processes, ordonnancement_constructive_heuristique_ptr);
+    printf("Delay: %d\n", delay);
+
+    // for (int i = 0; i < process_file->nb_processes; i++)
+    // {
+    //     printf("%d ", ordonnancement_constructive_heuristique_ptr[i]);
+    // }
+
+    free(process_file->processes);
+    free(process_file);
+    return 0;
+}
