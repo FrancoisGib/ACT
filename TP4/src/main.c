@@ -1,18 +1,23 @@
 #include "process.h"
 
-int limit_time_value_function(process_t *process)
+double limit_time_value_function(process_t *process)
 {
     return process->limit_time;
 }
 
-int weight_over_time_value_function(process_t *process)
+double weight_over_time_value_function(process_t *process)
 {
-    return process->weight / process->time;
+    return (double)process->weight / (double)process->time;
 }
 
-int sum_delay_value_function(process_t *process)
+double sum_delay_value_function(process_t *process)
 {
-    return process->limit_time * process->weight;
+    return (double)(process->limit_time * process->weight);
+}
+
+double weight_times_1_over_limit(process_t *process)
+{
+    return (double)((double)process->weight * (1 / (double)process->limit_time));
 }
 
 int sum_total_delay(process_t *processes, int nb_processes, int *ordonnancement)
@@ -109,6 +114,60 @@ void constructive_heuristique(int *ordonnancement, process_t *processes, int nb_
     }
 }
 
+void constructive_heuristique2(int *ordonnancement, process_t *processes, int nb_processes, value_function func)
+{
+    char already_taken[nb_processes];
+    memset(already_taken, 0, nb_processes);
+    int time = 0;
+    for (int i = 0; i < nb_processes; i++)
+    {
+        int current_loss = 0;
+        int index = 0;
+        for (int j = 0; j < nb_processes; j++)
+        {
+            if (already_taken[j])
+                continue;
+            double j_value = func(&processes[j]);
+            // int j_loss = MAX(0, (time + processes[j].time - processes[j].limit_time) * processes[j].weight);
+            int j_loss = 0;
+            if ((j_value + j_loss) < (func(&processes[index]) + current_loss))
+            {
+                current_loss = j_loss;
+                index = j;
+            }
+        }
+        time += processes[index].time;
+        ordonnancement[i] = index;
+        already_taken[index] = 1;
+    }
+}
+
+void test(process_t *processes, int nb_processes, value_function func)
+{
+    int ordonnancement_constructive_heuristique[nb_processes];
+    int *ordonnancement_constructive_heuristique_ptr = ordonnancement_constructive_heuristique;
+    quicksort(processes, 0, nb_processes - 1, func);
+    for (int i = 0; i < nb_processes; i++)
+    {
+        ordonnancement_constructive_heuristique[i] = i;
+    }
+    int delay = sum_total_delay(processes, nb_processes, ordonnancement_constructive_heuristique_ptr);
+    printf("Delay: %d\n", delay);
+}
+
+void test2(process_t *processes, int nb_processes, value_function func)
+{
+    int ordonnancement_constructive_heuristique[nb_processes];
+    int *ordonnancement_constructive_heuristique_ptr = ordonnancement_constructive_heuristique;
+    constructive_heuristique2(ordonnancement_constructive_heuristique_ptr, processes, nb_processes, func);
+    for (int i = 0; i < nb_processes; i++)
+    {
+        printf("%d ", ordonnancement_constructive_heuristique[i]);
+    }
+    int delay = sum_total_delay(processes, nb_processes, ordonnancement_constructive_heuristique_ptr);
+    printf("Delay: %d\n", delay);
+}
+
 int main(void)
 {
     srand(time(NULL));
@@ -135,52 +194,40 @@ int main(void)
 
     process_file_t *process_file = parse_file("SMTWP/n100_15_b.txt");
 
-    for (int i = 0; i < process_file->nb_processes; i++)
-    {
-        process_t process = process_file->processes[i];
-        printf("%d %d %d\n", process.time, process.weight, process.limit_time);
-    }
-
-    int random_ordonnancement2[process_file->nb_processes];
-    int *random_ordonnancement_ptr2 = random_ordonnancement2;
-    generate_random_solution(random_ordonnancement_ptr2, process_file->nb_processes);
-
-    delay = sum_total_delay(process_file->processes, process_file->nb_processes, random_ordonnancement_ptr2);
-    printf("Delay: %d\n", delay);
-
-    quicksort(process_file->processes, 0, process_file->nb_processes - 1, weight_over_time_value_function);
-    for (int i = 0; i < process_file->nb_processes; i++)
-    {
-        process_t process = process_file->processes[i];
-        printf("%d %d %d\n", process.time, process.weight, process.limit_time);
-    }
-
-    int ordonnancement_sorted[process_file->nb_processes];
-    for (int i = 0; i < process_file->nb_processes; i++)
-    {
-        ordonnancement_sorted[i] = i;
-    }
-    int *ordonnancement_sorted_ptr = ordonnancement_sorted;
-    delay = sum_total_delay(process_file->processes, process_file->nb_processes, ordonnancement_sorted_ptr);
-    printf("Delay: %d\n", delay);
-
     // for (int i = 0; i < process_file->nb_processes; i++)
     // {
-    //     printf("%d ", ordonnancement_sorted_ptr[i]);
+    //     process_t process = process_file->processes[i];
+    //     printf("%d %d %d\n", process.time, process.weight, process.limit_time);
     // }
 
-    int ordonnancement_constructive_heuristique[process_file->nb_processes];
-    int *ordonnancement_constructive_heuristique_ptr = ordonnancement_constructive_heuristique;
-    constructive_heuristique(ordonnancement_constructive_heuristique_ptr, process_file->processes, process_file->nb_processes);
-    delay = sum_total_delay(process_file->processes, process_file->nb_processes, ordonnancement_constructive_heuristique_ptr);
-    printf("Delay: %d\n", delay);
+    // int random_ordonnancement2[process_file->nb_processes];
+    // int *random_ordonnancement_ptr2 = random_ordonnancement2;
+    // generate_random_solution(random_ordonnancement_ptr2, process_file->nb_processes);
 
+    // delay = sum_total_delay(process_file->processes, process_file->nb_processes, random_ordonnancement_ptr2);
+    // printf("Delay: %d\n", delay);
+
+    // quicksort(process_file->processes, 0, process_file->nb_processes - 1, weight_over_time_value_function);
     // for (int i = 0; i < process_file->nb_processes; i++)
     // {
-    //     printf("%d ", ordonnancement_constructive_heuristique_ptr[i]);
+    //     process_t process = process_file->processes[i];
+    //     printf("%d %d %d\n", process.time, process.weight, process.limit_time);
     // }
 
+    // int ordonnancement_sorted[process_file->nb_processes];
+    // for (int i = 0; i < process_file->nb_processes; i++)
+    // {
+    //     ordonnancement_sorted[i] = i;
+    // }
+    // int *ordonnancement_sorted_ptr = ordonnancement_sorted;
+    // delay = sum_total_delay(process_file->processes, process_file->nb_processes, ordonnancement_sorted_ptr);
+    // printf("Delay: %d\n", delay);
+
+    test2(process_file->processes, process_file->nb_processes, weight_times_1_over_limit);
     free(process_file->processes);
     free(process_file);
+
+    test(processes_ptr, nb_processes, weight_times_1_over_limit);
+
     return 0;
 }
