@@ -168,6 +168,38 @@ void test2(process_t *processes, int nb_processes, value_function func)
     printf("Delay: %d\n", delay);
 }
 
+int **generate_neighbors(int *ordonnancement, int nb_processes)
+{
+    int nb_neighbors = nb_processes - 1;
+    printf("fsdfds %d %d %d\n", ordonnancement[0], ordonnancement[1], ordonnancement[2]);
+    int **neighbors = malloc(nb_neighbors * sizeof(int *));
+    for (int i = 0; i < nb_neighbors; i++)
+    {
+        int *neighbor = malloc(nb_processes * sizeof(int));
+        memset(neighbor, 0, sizeof(int) * nb_processes);
+        neighbors[i] = neighbor;
+        int first = i;
+        int second = i + 1;
+        int j = 0;
+        while (j < nb_processes)
+        {
+            for (int k = 0; k < nb_processes; k++)
+            {
+                if (ordonnancement[k] == ordonnancement[j])
+                {
+                    neighbor[j] = ordonnancement[k + 1];
+                }
+                else
+                {
+                    neighbor[j + 1] = ordonnancement[k];
+                }
+            }
+            j++;
+        }
+    }
+    return neighbors;
+}
+
 int main(void)
 {
     srand(time(NULL));
@@ -178,21 +210,21 @@ int main(void)
     int ordonnancement[] = {2, 0, 1};
     int *ordonnancement_ptr = ordonnancement;
 
-    int delay = sum_total_delay(processes_ptr, nb_processes, ordonnancement_ptr);
-    printf("Delay: %d\n", delay);
+    // int delay = sum_total_delay(processes_ptr, nb_processes, ordonnancement_ptr);
+    // printf("Delay: %d\n", delay);
 
-    int random_ordonnancement[nb_processes];
-    int *random_ordonnancement_ptr = random_ordonnancement;
-    generate_random_solution(random_ordonnancement_ptr, nb_processes);
+    // int random_ordonnancement[nb_processes];
+    // int *random_ordonnancement_ptr = random_ordonnancement;
+    // generate_random_solution(random_ordonnancement_ptr, nb_processes);
 
-    printf("Random ordonnancement: ");
-    for (int i = 0; i < nb_processes; i++)
-    {
-        printf("%d ", random_ordonnancement[i]);
-    }
-    printf("\n");
+    // printf("Random ordonnancement: ");
+    // for (int i = 0; i < nb_processes; i++)
+    // {
+    //     printf("%d ", random_ordonnancement[i]);
+    // }
+    // printf("\n");
 
-    process_file_t *process_file = parse_file("SMTWP/n100_15_b.txt");
+    // process_file_t *process_file = parse_file("SMTWP/n100_15_b.txt");
 
     // for (int i = 0; i < process_file->nb_processes; i++)
     // {
@@ -223,11 +255,22 @@ int main(void)
     // delay = sum_total_delay(process_file->processes, process_file->nb_processes, ordonnancement_sorted_ptr);
     // printf("Delay: %d\n", delay);
 
-    test2(process_file->processes, process_file->nb_processes, weight_times_1_over_limit);
-    free(process_file->processes);
-    free(process_file);
+    // test(process_file->processes, process_file->nb_processes, weight_times_1_over_limit);
+    // free(process_file->processes);
+    // free(process_file);
 
-    test(processes_ptr, nb_processes, weight_times_1_over_limit);
+    // test(processes_ptr, nb_processes, weight_times_1_over_limit);
+    // printf("\n");
+    int **neighbors = generate_neighbors(ordonnancement_ptr, nb_processes);
+    for (int i = 0; i < nb_processes - 1; i++)
+    {
+        for (int j = 0; j < nb_processes; j++)
+        {
+            int *neighbor = neighbors[i];
+            printf("%d ", neighbor[j]);
+        }
+        printf("\n");
+    }
 
     return 0;
 }

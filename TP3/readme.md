@@ -9,9 +9,9 @@ Q1) Un certificat dans le problème BinPack est une répartition de n objets dan
 
 Autrement dit, il faut que:
 
-- $\forall s \in sacs, \sum\limits_{o}^{o \in s} x[o] \leq c$
+$\forall s \in sacs, \sum\limits_{o}^{o \in s} x[o] \leq c$
 
-- $\forall o \in objets, \exists ! s \in sacs, \text{tq } o \in s$
+$\forall o \in objets, \exists ! s \in sacs, \text{tq } o \in s$
 
 Un certificat est representé par un tableau de taille n composé d'entiers de taille maximum log k bits. On a donc un certificat en $O(n \log k)$.
 Le certificat est donc bien borné polynomialement par la taille des données du problème.
