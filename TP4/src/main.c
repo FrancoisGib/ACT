@@ -82,63 +82,28 @@ process_file_t *parse_file(char *path)
     return process_file;
 }
 
-void constructive_heuristique(int *ordonnancement, process_t *processes, int nb_processes)
-{
-    char already_taken[nb_processes];
-    memset(already_taken, 0, nb_processes);
-    int loss = 0;
-    int time = 0;
-    int index = 0;
-    for (int i = 0; i < nb_processes; i++)
-    {
-        int local_loss = INT_MAX;
-        for (int j = 0; j < nb_processes; j++)
-        {
-            if (already_taken[j])
-            {
-                continue;
-            }
-            int end_time = time + processes[j].time;
-            int delay_loss = MAX(0, processes[j].weight * (end_time - processes[j].limit_time));
-            if (delay_loss < local_loss)
-            {
-                index = j;
-                local_loss = delay_loss;
-            }
-        }
-        ordonnancement[i] = index;
-        already_taken[index] = 1;
-        time += processes[index].time;
-        loss += local_loss;
-        index = 0;
-    }
-}
-
-void constructive_heuristique2(int *ordonnancement, process_t *processes, int nb_processes, value_function func)
+void constructive_heuristique(int *ordonnancement, process_t *processes, int nb_processes, value_function func)
 {
     char already_taken[nb_processes];
     memset(already_taken, 0, nb_processes);
     int time = 0;
     for (int i = 0; i < nb_processes; i++)
     {
-        int current_loss = 0;
-        int index = 0;
+        int current_loss = INT_MAX;
+        int index = -1;
         for (int j = 0; j < nb_processes; j++)
         {
-            if (already_taken[j])
-                continue;
-            double j_value = func(&processes[j]);
-            // int j_loss = MAX(0, (time + processes[j].time - processes[j].limit_time) * processes[j].weight);
-            int j_loss = 0;
-            if ((j_value + j_loss) < (func(&processes[index]) + current_loss))
+            process_t process = processes[j];
+            int take_loss = MAX(0, (process.limit_time - time + process.time) * (1 / process.weight));
+            if ((take_loss < current_loss || index == -1) && !already_taken[j])
             {
-                current_loss = j_loss;
                 index = j;
+                current_loss = take_loss;
             }
         }
-        time += processes[index].time;
-        ordonnancement[i] = index;
+        printf("loss: %d, time: %d, weight: %d limit: %d\n", current_loss, processes[index].time, processes[index].weight, processes[index].limit_time);
         already_taken[index] = 1;
+        ordonnancement[i] = index;
     }
 }
 
@@ -146,26 +111,14 @@ void test(process_t *processes, int nb_processes, value_function func)
 {
     int ordonnancement_constructive_heuristique[nb_processes];
     int *ordonnancement_constructive_heuristique_ptr = ordonnancement_constructive_heuristique;
-    quicksort(processes, 0, nb_processes - 1, func);
-    for (int i = 0; i < nb_processes; i++)
-    {
-        ordonnancement_constructive_heuristique[i] = i;
-    }
-    int delay = sum_total_delay(processes, nb_processes, ordonnancement_constructive_heuristique_ptr);
-    printf("Delay: %d\n", delay);
-}
-
-void test2(process_t *processes, int nb_processes, value_function func)
-{
-    int ordonnancement_constructive_heuristique[nb_processes];
-    int *ordonnancement_constructive_heuristique_ptr = ordonnancement_constructive_heuristique;
-    constructive_heuristique2(ordonnancement_constructive_heuristique_ptr, processes, nb_processes, func);
+    constructive_heuristique(ordonnancement_constructive_heuristique_ptr, processes, nb_processes, func);
     for (int i = 0; i < nb_processes; i++)
     {
         printf("%d ", ordonnancement_constructive_heuristique[i]);
     }
     int delay = sum_total_delay(processes, nb_processes, ordonnancement_constructive_heuristique_ptr);
     printf("Delay: %d\n", delay);
+    ;
 }
 
 int **generate_neighbors(int *ordonnancement, int nb_processes)
@@ -178,7 +131,8 @@ int **generate_neighbors(int *ordonnancement, int nb_processes)
     {
         int found = 0;
         int j = 0;
-        while (!found && j < nb_processes) {
+        while (!found && j < nb_processes)
+        {
             if (ordonnancement[j] == i)
             {
                 sorted_ordonnancement[i] = j;
@@ -190,7 +144,7 @@ int **generate_neighbors(int *ordonnancement, int nb_processes)
 
     for (int i = 0; i < nb_processes - 1; i++)
     {
-        int* neighbor = malloc(nb_processes * sizeof(int));
+        int *neighbor = malloc(nb_processes * sizeof(int));
         neighbors[i] = neighbor;
         // Copy all tasks
         memcpy(neighbor, ordonnancement, nb_processes * sizeof(int));
@@ -276,7 +230,8 @@ int main(void)
 
     int **neighbors = generate_neighbors(ordonnancement_ptr, nb_processes);
 
-    for (int i = 0; i < nb_processes - 1; i++) {
+    for (int i = 0; i < nb_processes - 1; i++)
+    {
         int delay = sum_total_delay(processes_ptr, nb_processes, neighbors[i]);
         for (int j = 0; j < nb_processes; j++)
         {
@@ -284,6 +239,8 @@ int main(void)
         }
         printf("delay: %d\n", delay);
     }
+
+    test(process_file->processes, process_file->nb_processes, NULL);
 
     return 0;
 }
