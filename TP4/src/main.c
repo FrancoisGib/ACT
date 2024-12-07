@@ -228,6 +228,7 @@ int *vnd(int *initial_ordonnancement, process_t *processes, int nb_processes, in
         if (neighbor_delay < current_delay)
         {
             current_delay = neighbor_delay;
+            // int *hill_ord = hill_climbing(best_neighbor, processes, nb_processes);
             memcpy(current_ordonnancement, best_neighbor, nb_processes * sizeof(int));
             i = 0;
         }
@@ -237,7 +238,7 @@ int *vnd(int *initial_ordonnancement, process_t *processes, int nb_processes, in
         }
         free(best_neighbor);
     }
-    return current_ordonnancement;
+    return hill_climbing(current_ordonnancement, processes, nb_processes);
 }
 
 int main(void)
@@ -326,7 +327,7 @@ int main(void)
     int delay_after = sum_total_delay(processes_ptr, nb_processes, best_ordonnancement);
     printf("Delay after hill climbing: %d\n", delay_after);
 
-    best_ordonnancement = vnd(ordonnancement_ptr, processes_ptr, nb_processes, 1000);
+    best_ordonnancement = vnd(ordonnancement_ptr, processes_ptr, nb_processes, 100000);
     // best_ordonnancement = hill_climbing(best_ordonnancement, processes_ptr, nb_processes);
 
     delay_after = sum_total_delay(processes_ptr, nb_processes, best_ordonnancement);
