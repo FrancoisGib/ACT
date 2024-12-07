@@ -202,7 +202,6 @@ int *vnd(int *initial_ordonnancement, process_t *processes, int nb_processes, in
       if (neighbor_delay < current_delay)
       {
          current_delay = neighbor_delay;
-         // int *hill_ord = hill_climbing(best_neighbor, processes, nb_processes);
          memcpy(current_ordonnancement, best_neighbor, nb_processes * sizeof(int));
          i = 0;
       }
