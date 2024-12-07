@@ -1,3 +1,13 @@
+#ifndef INCLUDE_PROCESS_H
+#define INCLUDE_PROCESS_H
+
+typedef struct
+{
+    int time;
+    int weight;
+    int limit_time;
+} process_t;
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -5,15 +15,14 @@
 #include <limits.h>
 #include "quicksort.h"
 #include "swap.h"
+#include "lib.h"
 
 #define MAX(x, y) (x) > (y) ? (x) : (y)
 
-typedef struct
-{
-    int nb_processes;
-    process_t *processes;
-} process_file_t;
-
 int sum_total_delay(process_t *processes, int nb_processes, int *ordonnancement);
 void generate_random_solution(int *ordonnancement, int nb_processes);
-process_file_t *parse_file(char *path);
+void constructive_heuristique(int *ordonnancement, process_t *processes, int nb_processes);
+int *hill_climbing(int *current_ordonnancement, process_t *processes, int nb_processes);
+int *vnd(int *initial_ordonnancement, process_t *processes, int nb_processes, int k);
+
+#endif // INCLUDE_PROCESS_H

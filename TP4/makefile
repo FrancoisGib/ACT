@@ -9,7 +9,9 @@ LFLAGS = # -lm
 INCLUDE = -I./include
 
 SOURCES = quicksort \
-			 swap
+			 swap \
+			 process \
+			 lib
 
 OBJECTS = $(addsuffix .o, $(SOURCES))
 
