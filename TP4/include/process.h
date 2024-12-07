@@ -4,6 +4,7 @@
 #include <string.h>
 #include <limits.h>
 #include "quicksort.h"
+#include "swap.h"
 
 #define MAX(x, y) (x) > (y) ? (x) : (y)
 

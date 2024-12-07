@@ -1,6 +1,6 @@
 #include "quicksort.h"
 
-void swap(process_t *a, process_t *b)
+void swap_processes(process_t *a, process_t *b)
 {
     process_t temp = *a;
     a->limit_time = b->limit_time;
@@ -30,10 +30,10 @@ int partition(process_t *arr, int low, int high, value_function func)
         }
         if (i < j)
         {
-            swap(&arr[i], &arr[j]);
+            swap_processes(&arr[i], &arr[j]);
         }
     }
-    swap(&arr[low], &arr[j]);
+    swap_processes(&arr[low], &arr[j]);
     return j;
 }
 

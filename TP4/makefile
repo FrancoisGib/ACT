@@ -8,7 +8,8 @@ CFLAGS = -Wall -Wextra -std=c11 -Wpedantic \
 LFLAGS = # -lm
 INCLUDE = -I./include
 
-SOURCES = quicksort
+SOURCES = quicksort \
+			 swap
 
 OBJECTS = $(addsuffix .o, $(SOURCES))
 

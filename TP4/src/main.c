@@ -1,24 +1,24 @@
 #include "process.h"
 
-double limit_time_value_function(process_t *process)
-{
-    return process->limit_time;
-}
+// double limit_time_value_function(process_t *process)
+// {
+//     return process->limit_time;
+// }
 
-double weight_over_time_value_function(process_t *process)
-{
-    return (double)process->weight / (double)process->time;
-}
+// double weight_over_time_value_function(process_t *process)
+// {
+//     return (double)process->weight / (double)process->time;
+// }
 
-double sum_delay_value_function(process_t *process)
-{
-    return (double)(process->limit_time * process->weight);
-}
+// double sum_delay_value_function(process_t *process)
+// {
+//     return (double)(process->limit_time * process->weight);
+// }
 
-double weight_times_1_over_limit(process_t *process)
-{
-    return (double)((double)process->weight * (1 / (double)process->limit_time));
-}
+// double weight_times_1_over_limit(process_t *process)
+// {
+//     return (double)((double)process->weight * (1 / (double)process->limit_time));
+// }
 
 int sum_total_delay(process_t *processes, int nb_processes, int *ordonnancement)
 {
@@ -111,16 +111,16 @@ void test(process_t *processes, int nb_processes, value_function func)
 {
     int ordonnancement_constructive_heuristique[nb_processes];
     int *ordonnancement_constructive_heuristique_ptr = ordonnancement_constructive_heuristique;
-    constructive_heuristique(ordonnancement_constructive_heuristique_ptr, processes, nb_processes);
+    quicksort(processes, 0, nb_processes - 1, func);
     for (int i = 0; i < nb_processes; i++)
     {
-        printf("%d ", ordonnancement_constructive_heuristique[i]);
+        ordonnancement_constructive_heuristique[i] = i;
     }
     int delay = sum_total_delay(processes, nb_processes, ordonnancement_constructive_heuristique_ptr);
     printf("Delay: %d\n", delay);
 }
 
-int **generate_neighbors(int *ordonnancement, int nb_processes)
+int **generate_neighbors(int *ordonnancement, int nb_processes, swap_function swap_func)
 {
     int nb_neighbors = nb_processes - 1;
     int **neighbors = malloc(nb_neighbors * sizeof(int *));
@@ -147,19 +147,18 @@ int **generate_neighbors(int *ordonnancement, int nb_processes)
         neighbors[i] = neighbor;
         // Copy all tasks
         memcpy(neighbor, ordonnancement, nb_processes * sizeof(int));
-        // Switch the two tasks
-        neighbor[sorted_ordonnancement[i + 1]] = i;
-        neighbor[sorted_ordonnancement[i]] = i + 1;
+        // Swap
+        swap_func(neighbor, sorted_ordonnancement, nb_processes, i);
     }
     return neighbors;
 }
 
 int *hill_climbing(int *current_ordonnancement, process_t *processes, int nb_processes)
 {
-    int **neighbors = generate_neighbors(current_ordonnancement, nb_processes);
+    int **neighbors = generate_neighbors(current_ordonnancement, nb_processes, swap_i_and_i_plus_1);
     int nb_ordonnancements = nb_processes - 1;
     int current_ordonnancement_delay = sum_total_delay(processes, nb_processes, current_ordonnancement);
-    int best_delay = INT_MAX;
+    int best_delay = current_ordonnancement_delay;
     int best_ordonnancement_index = -1;
     for (int i = 0; i < nb_ordonnancements; i++)
     {
@@ -192,37 +191,53 @@ int *hill_climbing(int *current_ordonnancement, process_t *processes, int nb_pro
     return best_ordonnancement;
 }
 
-int **enumerate_ordonnancements(int nb_processes)
+int *get_best_neighbor_and_free(int **neighbors, process_t *processes, int nb_processes)
 {
-    memset(cert, 0, sizeof(int) * nb_objects);
-
-    int nb_certificates = pow(nb_processes, nb_processes);
-    int **certificates = malloc(sizeof(int *) * nb_certificates);
-
-    int cpt = 0;
-    int i = nb_objects - 1;
-    while (cpt < nb_certificates) // nb_bags^nb_objects tours
+    int nb_neighbors = nb_processes - 1;
+    int best_delay = INT_MAX;
+    int *best_neighbor = malloc(nb_processes * sizeof(int));
+    for (int i = 0; i < nb_neighbors; i++)
     {
-        int *certificate = malloc(sizeof(int) * nb_objects);
-        memcpy(certificate, cert, sizeof(int) * nb_objects);
-        certificates[cpt] = certificate;
-        cpt++;
-        i = nb_objects - 1;
-        while (i >= 0 && cert[i] == nb_bags - 1)
+        int *neighbor = neighbors[i];
+        int neighbor_delay = sum_total_delay(processes, nb_processes, neighbor);
+        if (neighbor_delay < best_delay)
         {
-            cert[i] = 0; // on remet à 0 si on atteint le nombre de sacs - 1, si on l'a fait pour tous les objets, alors on a fini.
-            i--;
+            memcpy(best_neighbor, neighbor, nb_processes * sizeof(int));
+            best_delay = neighbor_delay;
         }
-        cert[i]++;
+        free(neighbor);
     }
-    return certificates;
+    free(neighbors);
+    return best_neighbor;
 }
 
-void free_certificates_list(int **certificates, int n)
+int *vnd(int *initial_ordonnancement, process_t *processes, int nb_processes, int k)
 {
-    for (int i = 0; i < n; i++)
-        free(certificates[i]);
-    free(certificates);
+    int nb_ordonnancements = nb_processes - 1;
+    int best_ordonnancement_index = -1;
+    int i = 0;
+    int *current_ordonnancement = malloc(nb_processes * sizeof(int));
+    memcpy(current_ordonnancement, initial_ordonnancement, nb_processes * sizeof(int));
+    int current_delay = sum_total_delay(processes, nb_processes, initial_ordonnancement);
+
+    while (i < k)
+    {
+        int **neighbors = generate_neighbors(current_ordonnancement, nb_processes, swap_i_and_middle);
+        int *best_neighbor = get_best_neighbor_and_free(neighbors, processes, nb_processes);
+        int neighbor_delay = sum_total_delay(processes, nb_processes, best_neighbor);
+        if (neighbor_delay < current_delay)
+        {
+            current_delay = neighbor_delay;
+            memcpy(current_ordonnancement, best_neighbor, nb_processes * sizeof(int));
+            i = 0;
+        }
+        else
+        {
+            i++;
+        }
+        free(best_neighbor);
+    }
+    return current_ordonnancement;
 }
 
 int main(void)
@@ -264,7 +279,7 @@ int main(void)
     // delay = sum_total_delay(process_file->processes, process_file->nb_processes, random_ordonnancement_ptr2);
     // printf("Delay: %d\n", delay);
 
-    quicksort(process_file->processes, 0, process_file->nb_processes - 1, weight_over_time_value_function);
+    // quicksort(process_file->processes, 0, process_file->nb_processes - 1, weight_over_time_value_function);
     // for (int i = 0; i < process_file->nb_processes; i++)
     // {
     //     process_t process = process_file->processes[i];
@@ -294,15 +309,15 @@ int main(void)
     int delay = sum_total_delay(processes_ptr, nb_processes, ordonnancement_ptr);
     printf("delay: %d\n", delay);
 
-    int **neighbors = generate_neighbors(ordonnancement_ptr, nb_processes);
+    // int **neighbors = generate_neighbors(ordonnancement_ptr, nb_processes, swap_i_and_i_plus_1);
 
-    for (int i = 0; i < nb_processes - 1; i++)
-    {
-        int delay = sum_total_delay(processes_ptr, nb_processes, neighbors[i]);
-        printf("delay: %d\n", delay);
-    }
+    // for (int i = 0; i < nb_processes - 1; i++)
+    // {
+    //     int delay = sum_total_delay(processes_ptr, nb_processes, neighbors[i]);
+    //     printf("delay: %d\n", delay);
+    // }
 
-    // test(process_file->processes, process_file->nb_processes, NULL);
+    // test(processes_ptr, nb_processes, weight_times_1_over_limit);
     constructive_heuristique(ordonnancement_ptr, processes_ptr, nb_processes);
     int delay_before = sum_total_delay(processes_ptr, nb_processes, ordonnancement_ptr);
     printf("\nDelay before hill climbing: %d\n", delay_before);
@@ -310,6 +325,27 @@ int main(void)
 
     int delay_after = sum_total_delay(processes_ptr, nb_processes, best_ordonnancement);
     printf("Delay after hill climbing: %d\n", delay_after);
+
+    best_ordonnancement = vnd(ordonnancement_ptr, processes_ptr, nb_processes, 1000);
+    // best_ordonnancement = hill_climbing(best_ordonnancement, processes_ptr, nb_processes);
+
+    delay_after = sum_total_delay(processes_ptr, nb_processes, best_ordonnancement);
+    printf("Delay after vnd: %d\n", delay_after);
+
+    process_t tasks[10] = {
+        {3, 4, 10}, // Temps = 3, Poids = 4, Limite = 10
+        {5, 2, 8},  // Temps = 5, Poids = 2, Limite = 8
+        {2, 3, 6},  // Temps = 2, Poids = 3, Limite = 6
+        {4, 6, 15}, // Temps = 4, Poids = 6, Limite = 15
+        {3, 5, 7},  // Temps = 3, Poids = 5, Limite = 7
+        {6, 2, 20}, // Temps = 6, Poids = 2, Limite = 20
+        {1, 4, 5},  // Temps = 1, Poids = 4, Limite = 5
+        {7, 3, 12}, // Temps = 7, Poids = 3, Limite = 12
+        {3, 7, 10}, // Temps = 3, Poids = 7, Limite = 10
+        {2, 1, 4}   // Temps = 2, Poids = 1, Limite = 4
+    };
+
+    int n = 10;
 
     return 0;
 }
