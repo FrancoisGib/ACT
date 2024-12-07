@@ -333,20 +333,21 @@ int main(void)
     delay_after = sum_total_delay(processes_ptr, nb_processes, best_ordonnancement);
     printf("Delay after vnd: %d\n", delay_after);
 
-    process_t tasks[10] = {
-        {3, 4, 10}, // Temps = 3, Poids = 4, Limite = 10
-        {5, 2, 8},  // Temps = 5, Poids = 2, Limite = 8
-        {2, 3, 6},  // Temps = 2, Poids = 3, Limite = 6
-        {4, 6, 15}, // Temps = 4, Poids = 6, Limite = 15
-        {3, 5, 7},  // Temps = 3, Poids = 5, Limite = 7
-        {6, 2, 20}, // Temps = 6, Poids = 2, Limite = 20
-        {1, 4, 5},  // Temps = 1, Poids = 4, Limite = 5
-        {7, 3, 12}, // Temps = 7, Poids = 3, Limite = 12
-        {3, 7, 10}, // Temps = 3, Poids = 7, Limite = 10
-        {2, 1, 4}   // Temps = 2, Poids = 1, Limite = 4
-    };
+    // Need for later
+    // process_t tasks[10] = {
+    //     {3, 4, 10}, // Temps = 3, Poids = 4, Limite = 10
+    //     {5, 2, 8},  // Temps = 5, Poids = 2, Limite = 8
+    //     {2, 3, 6},  // Temps = 2, Poids = 3, Limite = 6
+    //     {4, 6, 15}, // Temps = 4, Poids = 6, Limite = 15
+    //     {3, 5, 7},  // Temps = 3, Poids = 5, Limite = 7
+    //     {6, 2, 20}, // Temps = 6, Poids = 2, Limite = 20
+    //     {1, 4, 5},  // Temps = 1, Poids = 4, Limite = 5
+    //     {7, 3, 12}, // Temps = 7, Poids = 3, Limite = 12
+    //     {3, 7, 10}, // Temps = 3, Poids = 7, Limite = 10
+    //     {2, 1, 4}   // Temps = 2, Poids = 1, Limite = 4
+    // };
 
-    int n = 10;
+    // int n = 10;
 
     return 0;
 }
