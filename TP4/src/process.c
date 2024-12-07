@@ -54,8 +54,9 @@ void generate_random_solution(int *ordonnancement, int nb_processes)
    }
 }
 
-void constructive_heuristique(int *ordonnancement, process_t *processes, int nb_processes)
+int *constructive_heuristique(process_t *processes, int nb_processes)
 {
+   int *ordonnancement = malloc(nb_processes * sizeof(int));
    char already_taken[nb_processes];
    memset(already_taken, 0, nb_processes);
    int time = 0;
@@ -78,6 +79,7 @@ void constructive_heuristique(int *ordonnancement, process_t *processes, int nb_
       already_taken[index] = 1;
       ordonnancement[i] = index;
    }
+   return ordonnancement;
 }
 
 // Function used with quicksort to make constructive heuristique

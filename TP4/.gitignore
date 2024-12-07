@@ -1,2 +1,4 @@
 build
 main
+experiments_main
+experiments/output.dat

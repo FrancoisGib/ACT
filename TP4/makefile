@@ -18,6 +18,7 @@ OBJECTS = $(addsuffix .o, $(SOURCES))
 SRC_DIR = src
 BUILD_DIR = build
 MAIN_OUTPUT = main
+EXPERIMENTS_OUTPUT = experiments_main
 
 OBJECTS_DIR = $(addprefix $(BUILD_DIR)/, $(OBJECTS))
 
@@ -31,6 +32,9 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 
 main: dir $(OBJECTS_DIR)
 	$(CC) $(CFLAGS) -o $(MAIN_OUTPUT) $(SRC_DIR)/main.c $(OBJECTS_DIR) $(INCLUDE) $(LFLAGS)
+
+experiments: dir $(OBJECTS_DIR)
+	$(CC) $(CFLAGS) -o $(EXPERIMENTS_OUTPUT) $(SRC_DIR)/experiments.c $(OBJECTS_DIR) $(INCLUDE) $(LFLAGS)
 
 clean:
 	rm -rf $(MAIN_OUTPUT) $(BUILD_DIR)

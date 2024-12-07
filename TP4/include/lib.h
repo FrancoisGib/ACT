@@ -10,5 +10,6 @@ typedef struct
 } process_file_t;
 
 process_file_t *parse_process_file(char *path);
+void parse_solutions_file(char *path, int *solutions_array, int nb_files);
 
 #endif // INCLUDE_LIB_H

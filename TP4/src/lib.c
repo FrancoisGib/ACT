@@ -14,9 +14,7 @@ process_file_t *parse_process_file(char *path)
    process_file->processes = processes;
    for (int i = 0; i < nb_processes; i++)
    {
-      int pi;
-      int wi;
-      int di;
+      int pi, wi, di;
       if (fscanf(file, "\n%d %d %d", &pi, &wi, &di) != 3)
       {
          free(process_file->processes);
@@ -27,4 +25,17 @@ process_file_t *parse_process_file(char *path)
       processes[i] = process;
    }
    return process_file;
+}
+
+void parse_solutions_file(char *path, int *solutions_array, int nb_files)
+{
+   FILE *file = fopen(path, "r");
+   for (int i = 0; i < nb_files; i++)
+   {
+      int dummy1, dummy2;
+      if (fscanf(file, "%d_%d : %d\n", &dummy1, &dummy2, &solutions_array[i]) != 3)
+      {
+         return;
+      }
+   }
 }

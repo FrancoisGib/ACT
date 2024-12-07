@@ -21,7 +21,7 @@ typedef struct
 
 int sum_total_delay(process_t *processes, int nb_processes, int *ordonnancement);
 void generate_random_solution(int *ordonnancement, int nb_processes);
-void constructive_heuristique(int *ordonnancement, process_t *processes, int nb_processes);
+int *constructive_heuristique(process_t *processes, int nb_processes);
 int *hill_climbing(int *current_ordonnancement, process_t *processes, int nb_processes);
 int *vnd(int *initial_ordonnancement, process_t *processes, int nb_processes, int k);
 
