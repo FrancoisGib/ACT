@@ -11,20 +11,24 @@ void experiment(process_t *processes, int nb_processes, int optimal_solution)
       ordonnancement_sorted[i] = i;
    }
 
-   int *ordonnancement_ptr = ordonnancement_sorted;
+   int ordonnancement[nb_processes];
+   int *ordonnancement_ptr = ordonnancement;
 
-   int *constructive_ord = constructive_heuristique(processes, nb_processes);
-   int constructive_delay = sum_total_delay(processes, nb_processes, constructive_ord);
+   memcpy(ordonnancement_ptr, ordonnancement_sorted, nb_processes * sizeof(int));
+   constructive_heuristique(ordonnancement_ptr, processes, nb_processes);
+   int constructive_delay = sum_total_delay(processes, nb_processes, ordonnancement_ptr);
    double constructive_ratio = (double)constructive_delay / (double)optimal_solution;
    printf("Constructive heuristic delay (sort with delay): %d, ratio: %lf\n", constructive_delay, constructive_ratio);
 
-   int *hill_climbing_ord = hill_climbing(ordonnancement_ptr, processes, nb_processes);
-   int hill_climbing_delay = sum_total_delay(processes, nb_processes, hill_climbing_ord);
+   memcpy(ordonnancement_ptr, ordonnancement_sorted, nb_processes * sizeof(int));
+   hill_climbing(ordonnancement_ptr, processes, nb_processes);
+   int hill_climbing_delay = sum_total_delay(processes, nb_processes, ordonnancement_ptr);
    double hill_climbing_ratio = (double)hill_climbing_delay / (double)optimal_solution;
    printf("Hill Climbing delay: %d, ratio: %lf\n", hill_climbing_delay, hill_climbing_ratio);
 
-   int *vnd_ord = vnd(ordonnancement_ptr, processes, nb_processes, 100000);
-   int vnd_delay = sum_total_delay(processes, nb_processes, vnd_ord);
+   memcpy(ordonnancement_ptr, ordonnancement_sorted, nb_processes * sizeof(int));
+   vnd(ordonnancement_ptr, processes, nb_processes, 100000);
+   int vnd_delay = sum_total_delay(processes, nb_processes, ordonnancement_ptr);
    double vnd_ratio = (double)vnd_delay / (double)optimal_solution;
    printf("VND delay: %d, ratio: %lf\n", vnd_delay, vnd_ratio);
 
@@ -40,6 +44,8 @@ void file_experiment(char *path, int optimal_solution)
    printf("Optimal solution: %d\n", optimal_solution);
    experiment(process_file->processes, process_file->nb_processes, optimal_solution);
    printf("----------------------\n");
+   free(process_file->processes);
+   free(process_file);
 }
 
 int main(void)

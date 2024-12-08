@@ -10,27 +10,34 @@ int main(void)
     //     printf("%d %d %d\n", process.time, process.weight, process.limit_time);
     // }
 
-    int ordonnancement_sorted[process_file->nb_processes];
-    for (int i = 0; i < process_file->nb_processes; i++)
+    int nb_processes = process_file->nb_processes;
+    process_t *processes = process_file->processes;
+
+    int ordonnancement_sorted[nb_processes];
+    for (int i = 0; i < nb_processes; i++)
     {
         ordonnancement_sorted[i] = i;
     }
 
-    int *ordonnancement_ptr = ordonnancement_sorted;
-    int nb_processes = process_file->nb_processes;
-    process_t *processes_ptr = process_file->processes;
+    int ordonnancement[process_file->nb_processes];
+    int *ordonnancement_ptr = ordonnancement;
 
-    constructive_heuristique(ordonnancement_ptr, processes_ptr, nb_processes);
-    int delay = sum_total_delay(processes_ptr, nb_processes, ordonnancement_ptr);
+    memcpy(ordonnancement_ptr, ordonnancement_sorted, nb_processes * sizeof(int));
+    constructive_heuristique(ordonnancement_ptr, processes, nb_processes);
+    int delay = sum_total_delay(processes, nb_processes, ordonnancement);
     printf("Delay with constructive heuristic (sort with delay): %d\n", delay);
 
-    int *best_ordonnancement = hill_climbing(ordonnancement_ptr, processes_ptr, nb_processes);
-    delay = sum_total_delay(processes_ptr, nb_processes, best_ordonnancement);
+    memcpy(ordonnancement_ptr, ordonnancement_sorted, nb_processes * sizeof(int));
+    hill_climbing(ordonnancement_ptr, processes, nb_processes);
+    delay = sum_total_delay(processes, nb_processes, ordonnancement_ptr);
     printf("Delay after hill climbing: %d\n", delay);
 
-    best_ordonnancement = vnd(ordonnancement_ptr, processes_ptr, nb_processes, 100000);
-    delay = sum_total_delay(processes_ptr, nb_processes, best_ordonnancement);
+    memcpy(ordonnancement_ptr, ordonnancement_sorted, nb_processes * sizeof(int));
+    vnd(ordonnancement_ptr, processes, nb_processes, 100000);
+    delay = sum_total_delay(processes, nb_processes, ordonnancement_ptr);
     printf("Delay after vnd: %d\n", delay);
 
+    free(processes);
+    free(process_file);
     return 0;
 }

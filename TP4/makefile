@@ -35,6 +35,9 @@ main: dir $(OBJECTS_DIR)
 
 experiments: dir $(OBJECTS_DIR)
 	$(CC) $(CFLAGS) -o $(EXPERIMENTS_OUTPUT) $(SRC_DIR)/experiments.c $(OBJECTS_DIR) $(INCLUDE) $(LFLAGS)
+	@echo
+	./experiments_main
+	gnuplot experiments/curves.gnu
 
 clean:
 	rm -rf $(MAIN_OUTPUT) $(BUILD_DIR)

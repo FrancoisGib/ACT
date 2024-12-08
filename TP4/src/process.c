@@ -54,9 +54,8 @@ void generate_random_solution(int *ordonnancement, int nb_processes)
    }
 }
 
-int *constructive_heuristique(process_t *processes, int nb_processes)
+void constructive_heuristique(int *ordonnancement, process_t *processes, int nb_processes)
 {
-   int *ordonnancement = malloc(nb_processes * sizeof(int));
    char already_taken[nb_processes];
    memset(already_taken, 0, nb_processes);
    int time = 0;
@@ -79,7 +78,6 @@ int *constructive_heuristique(process_t *processes, int nb_processes)
       already_taken[index] = 1;
       ordonnancement[i] = index;
    }
-   return ordonnancement;
 }
 
 // Function used with quicksort to make constructive heuristique
@@ -129,7 +127,7 @@ int **generate_neighbors(int *ordonnancement, int nb_processes, swap_function sw
    return neighbors;
 }
 
-int *hill_climbing(int *current_ordonnancement, process_t *processes, int nb_processes)
+void hill_climbing(int *current_ordonnancement, process_t *processes, int nb_processes)
 {
    int **neighbors = generate_neighbors(current_ordonnancement, nb_processes, swap_i_and_i_plus_1);
    int nb_ordonnancements = nb_processes - 1;
@@ -146,25 +144,16 @@ int *hill_climbing(int *current_ordonnancement, process_t *processes, int nb_pro
       }
    }
 
-   if (best_ordonnancement_index == -1)
+   if (best_ordonnancement_index != -1)
    {
-      return current_ordonnancement;
+      memcpy(current_ordonnancement, neighbors[best_ordonnancement_index], nb_processes * sizeof(int));
    }
-
-   int *best_ordonnancement = malloc(nb_processes * sizeof(int));
-   memcpy(best_ordonnancement, neighbors[best_ordonnancement_index], nb_processes * sizeof(int));
 
    for (int i = 0; i < nb_ordonnancements; i++)
    {
       free(neighbors[i]);
    }
    free(neighbors);
-
-   if (best_delay < current_ordonnancement_delay)
-   {
-      return hill_climbing(best_ordonnancement, processes, nb_processes);
-   }
-   return best_ordonnancement;
 }
 
 int *get_best_neighbor_and_free(int **neighbors, process_t *processes, int nb_processes)
@@ -187,13 +176,10 @@ int *get_best_neighbor_and_free(int **neighbors, process_t *processes, int nb_pr
    return best_neighbor;
 }
 
-int *vnd(int *initial_ordonnancement, process_t *processes, int nb_processes, int k)
+void vnd(int *current_ordonnancement, process_t *processes, int nb_processes, int k)
 {
    int i = 0;
-   int *current_ordonnancement = malloc(nb_processes * sizeof(int));
-   memcpy(current_ordonnancement, initial_ordonnancement, nb_processes * sizeof(int));
-   int current_delay = sum_total_delay(processes, nb_processes, initial_ordonnancement);
-
+   int current_delay = sum_total_delay(processes, nb_processes, current_ordonnancement);
    while (i < k)
    {
       int **neighbors = generate_neighbors(current_ordonnancement, nb_processes, swap_i_and_middle);
@@ -211,5 +197,26 @@ int *vnd(int *initial_ordonnancement, process_t *processes, int nb_processes, in
       }
       free(best_neighbor);
    }
-   return hill_climbing(current_ordonnancement, processes, nb_processes);
+}
+
+int *perturb_solution(int *ordonnancement, int nb_processes)
+{
+   int *perturbed = malloc(nb_processes * sizeof(int));
+   memcpy(perturbed, ordonnancement, nb_processes * sizeof(int));
+
+   // Exemple : Échanger deux éléments aléatoires
+   int i = rand() % nb_processes;
+   int j = rand() % nb_processes;
+   if (i != j)
+   {
+      int temp = perturbed[i];
+      perturbed[i] = perturbed[j];
+      perturbed[j] = temp;
+   }
+   else
+   {
+      free(perturbed);
+      return perturb_solution(ordonnancement, nb_processes);
+   }
+   return perturbed;
 }
