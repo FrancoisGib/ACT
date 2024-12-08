@@ -3,12 +3,8 @@
 void swap_processes(process_t *a, process_t *b)
 {
     process_t temp = *a;
-    a->limit_time = b->limit_time;
-    a->time = b->time;
-    a->weight = b->weight;
-    b->limit_time = temp.limit_time;
-    b->time = temp.time;
-    b->weight = temp.weight;
+    *a = *b;
+    *b = temp;
 }
 
 int partition(process_t *arr, int low, int high, value_function func)
