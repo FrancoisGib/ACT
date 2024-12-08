@@ -1,6 +1,7 @@
 #include "process.h"
 
-FILE *output_file;
+FILE *delay_file;
+FILE *ratio_file;
 int file_index = 1;
 
 void experiment(process_t *processes, int nb_processes, int optimal_solution)
@@ -12,29 +13,32 @@ void experiment(process_t *processes, int nb_processes, int optimal_solution)
    }
 
    int ordonnancement[nb_processes];
-   int *ordonnancement_ptr = ordonnancement;
 
-   memcpy(ordonnancement_ptr, ordonnancement_sorted, nb_processes * sizeof(int));
-   constructive_heuristique(ordonnancement_ptr, processes, nb_processes);
-   int constructive_delay = sum_total_delay(processes, nb_processes, ordonnancement_ptr);
+   memcpy(ordonnancement, ordonnancement_sorted, nb_processes * sizeof(int));
+   constructive_heuristique(ordonnancement, processes, nb_processes);
+   int constructive_delay = sum_total_delay(processes, nb_processes, ordonnancement);
    double constructive_ratio = (double)constructive_delay / (double)optimal_solution;
    printf("Constructive heuristic delay (sort with delay): %d, ratio: %lf\n", constructive_delay, constructive_ratio);
 
-   memcpy(ordonnancement_ptr, ordonnancement_sorted, nb_processes * sizeof(int));
-   hill_climbing(ordonnancement_ptr, processes, nb_processes);
-   int hill_climbing_delay = sum_total_delay(processes, nb_processes, ordonnancement_ptr);
+   memcpy(ordonnancement, ordonnancement_sorted, nb_processes * sizeof(int));
+   hill_climbing(ordonnancement, processes, nb_processes);
+   int hill_climbing_delay = sum_total_delay(processes, nb_processes, ordonnancement);
    double hill_climbing_ratio = (double)hill_climbing_delay / (double)optimal_solution;
    printf("Hill Climbing delay: %d, ratio: %lf\n", hill_climbing_delay, hill_climbing_ratio);
 
-   memcpy(ordonnancement_ptr, ordonnancement_sorted, nb_processes * sizeof(int));
-   vnd(ordonnancement_ptr, processes, nb_processes);
-   int vnd_delay = sum_total_delay(processes, nb_processes, ordonnancement_ptr);
+   memcpy(ordonnancement, ordonnancement_sorted, nb_processes * sizeof(int));
+   vnd(ordonnancement, processes, nb_processes);
+   int vnd_delay = sum_total_delay(processes, nb_processes, ordonnancement);
    double vnd_ratio = (double)vnd_delay / (double)optimal_solution;
    printf("VND delay: %d, ratio: %lf\n", vnd_delay, vnd_ratio);
 
    char buf[64];
    sprintf(buf, "%d %d %d %d %d\n", file_index, constructive_delay, hill_climbing_delay, vnd_delay, optimal_solution);
-   fwrite(buf, strlen(buf), 1, output_file);
+   fwrite(buf, strlen(buf), 1, delay_file);
+
+   memset(buf, 0, 64);
+   sprintf(buf, "%d %lf %lf %lf %lf\n", file_index, constructive_ratio, hill_climbing_ratio, vnd_ratio, 1.0);
+   fwrite(buf, strlen(buf), 1, ratio_file);
    file_index++;
 }
 
@@ -56,9 +60,15 @@ int main(void)
    int solutions[nb_files];
    parse_solutions_file("SMTWP/solutions.txt", solutions, nb_files);
 
-   output_file = fopen("experiments/output.dat", "w");
-   if (output_file == NULL)
+   delay_file = fopen("experiments/delay.dat", "w");
+   if (delay_file == NULL)
    {
+      return -1;
+   }
+   ratio_file = fopen("experiments/ratio.dat", "w");
+   if (ratio_file == NULL)
+   {
+      fclose(delay_file);
       return -1;
    }
 
@@ -77,6 +87,7 @@ int main(void)
    //    file_experiment(buf);
    // }
 
-   fclose(output_file);
+   fclose(delay_file);
+   fclose(ratio_file);
    return 0;
 }

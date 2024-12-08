@@ -37,7 +37,8 @@ experiments: dir $(OBJECTS_DIR)
 	$(CC) $(CFLAGS) -o $(EXPERIMENTS_OUTPUT) $(SRC_DIR)/experiments.c $(OBJECTS_DIR) $(INCLUDE) $(LFLAGS)
 	@echo
 	./experiments_main
-	gnuplot experiments/curves.gnu
+	gnuplot experiments/delay.gnu
+	gnuplot experiments/ratio.gnu
 
 clean:
 	rm -rf $(MAIN_OUTPUT) $(EXPERIMENTS_OUTPUT) $(BUILD_DIR)

@@ -20,23 +20,21 @@ int main(void)
     {
         ordonnancement_sorted[i] = i;
     }
-
     int ordonnancement[process_file->nb_processes];
-    int *ordonnancement_ptr = ordonnancement;
 
-    memcpy(ordonnancement_ptr, ordonnancement_sorted, nb_processes * sizeof(int));
-    constructive_heuristique(ordonnancement_ptr, processes, nb_processes);
+    memcpy(ordonnancement, ordonnancement_sorted, nb_processes * sizeof(int));
+    constructive_heuristique(ordonnancement, processes, nb_processes);
     int delay = sum_total_delay(processes, nb_processes, ordonnancement);
     printf("Delay with constructive heuristic (sort with delay): %d\n", delay);
 
-    memcpy(ordonnancement_ptr, ordonnancement_sorted, nb_processes * sizeof(int));
-    hill_climbing(ordonnancement_ptr, processes, nb_processes);
-    delay = sum_total_delay(processes, nb_processes, ordonnancement_ptr);
+    memcpy(ordonnancement, ordonnancement_sorted, nb_processes * sizeof(int));
+    hill_climbing(ordonnancement, processes, nb_processes);
+    delay = sum_total_delay(processes, nb_processes, ordonnancement);
     printf("Delay after hill climbing: %d\n", delay);
 
-    memcpy(ordonnancement_ptr, ordonnancement_sorted, nb_processes * sizeof(int));
-    vnd(ordonnancement_ptr, processes, nb_processes);
-    delay = sum_total_delay(processes, nb_processes, ordonnancement_ptr);
+    memcpy(ordonnancement, ordonnancement_sorted, nb_processes * sizeof(int));
+    vnd(ordonnancement, processes, nb_processes);
+    delay = sum_total_delay(processes, nb_processes, ordonnancement);
     printf("Delay after vnd: %d\n", delay);
 
     free(processes);

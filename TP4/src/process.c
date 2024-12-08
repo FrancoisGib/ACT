@@ -171,16 +171,19 @@ int *get_best_neighbor_and_free(int **neighbors, process_t *processes, int nb_pr
 //                                   shift_right,
 //                                   swap_sub_list_nb_processes_per_4,
 //                                   swap_random_nb_processes_per_4,
+//                                   swap_sub_list
 //                                   swap_symetric,
-//                                   swap_random};
+//                                   swap_random,
+//                                   swap_i_and_i_plus_1_three_times,
+// };
 
 swap_function swap_functions[] = {
     swap_i_and_i_plus_1,
-    swap_i_and_middle,
-    swap_symetric,
-    swap_random_nb_processes_per_4,
-    swap_random,
-    swap_sub_list_nb_processes_per_4,
+    swap_i_and_middle,               // almost no impact
+    swap_symetric,                   // more impact
+    swap_random_nb_processes_per_4,  // more impact
+    swap_random,                     // big impact
+    swap_i_and_i_plus_1_three_times, // last, just to get near neighborhoods when others don't change anything, with tests 3 is the best in general
 };
 
 void vnd(int *current_ordonnancement, process_t *processes, int nb_processes)
