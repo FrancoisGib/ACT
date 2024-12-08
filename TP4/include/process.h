@@ -23,6 +23,6 @@ int sum_total_delay(process_t *processes, int nb_processes, int *ordonnancement)
 void generate_random_solution(int *ordonnancement, int nb_processes);
 void constructive_heuristique(int *current_ordonnancement, process_t *processes, int nb_processes);
 void hill_climbing(int *current_ordonnancement, process_t *processes, int nb_processes);
-void vnd(int *current_ordonnancement, process_t *processes, int nb_processes, int k);
+void vnd(int *current_ordonnancement, process_t *processes, int nb_processes);
 
 #endif // INCLUDE_PROCESS_H

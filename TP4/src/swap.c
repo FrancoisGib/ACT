@@ -30,3 +30,75 @@ void swap_i_and_i_plus_1(int *ordonnancement, int *sorted_ordonnancement, int nb
    ordonnancement[sorted_ordonnancement[nb_processes - 1]] = i; // 201K
    ordonnancement[sorted_ordonnancement[i]] = nb_processes - 1;
 }
+
+void swap_random(int *ordonnancement, int *sorted_ordonnancement, int nb_processes, int i)
+{
+   int index1 = rand() % nb_processes;
+   int index2 = rand() % nb_processes;
+
+   while (index1 == index2)
+   {
+      index2 = rand() % nb_processes;
+   }
+
+   int temp = ordonnancement[sorted_ordonnancement[index1]];
+   ordonnancement[sorted_ordonnancement[index1]] = ordonnancement[sorted_ordonnancement[index2]];
+   ordonnancement[sorted_ordonnancement[index2]] = temp;
+}
+
+void shift_left(int *ordonnancement, int *sorted_ordonnancement, int nb_processes, int i)
+{
+   int temp = ordonnancement[0];
+   for (int j = 0; j < nb_processes - 1; j++)
+   {
+      ordonnancement[j] = ordonnancement[j + 1];
+   }
+   ordonnancement[nb_processes - 1] = temp;
+}
+
+void shift_left_lasts_i(int *ordonnancement, int *sorted_ordonnancement, int nb_processes, int i)
+{
+   int temp = ordonnancement[0];
+   for (int j = nb_processes - i; j < nb_processes; j++)
+   {
+      ordonnancement[j] = ordonnancement[j + 1];
+   }
+   ordonnancement[nb_processes - 1] = temp;
+}
+
+void shift_right(int *ordonnancement, int *sorted_ordonnancement, int nb_processes, int i)
+{
+   int temp = ordonnancement[0];
+   for (int j = 1; j < nb_processes; j++)
+   {
+      ordonnancement[j - 1] = ordonnancement[j];
+   }
+   ordonnancement[nb_processes - 1] = temp;
+}
+
+void swap_sub_list_nb_processes_per_4(int *ordonnancement, int *sorted_ordonnancement, int nb_processes, int i)
+{
+   if (i >= 3 * nb_processes / 4)
+   {
+      i -= nb_processes / 4;
+   }
+   swap_symetric(ordonnancement, sorted_ordonnancement, nb_processes, i);
+}
+
+void swap_random_nb_processes_per_4(int *ordonnancement, int *sorted_ordonnancement, int nb_processes, int i)
+{
+   int num_swaps = nb_processes / 4;
+   for (int j = 0; j < num_swaps; j++)
+   {
+      int index1 = rand() % nb_processes;
+      int index2 = rand() % nb_processes;
+
+      while (index1 == index2)
+      {
+         index2 = rand() % nb_processes;
+      }
+      int temp = ordonnancement[index1];
+      ordonnancement[index1] = ordonnancement[index2];
+      ordonnancement[index2] = temp;
+   }
+}

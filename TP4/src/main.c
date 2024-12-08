@@ -2,6 +2,8 @@
 
 int main(void)
 {
+    // srand(time(NULL));
+
     process_file_t *process_file = parse_process_file("SMTWP/n100_15_b.txt");
 
     // for (int i = 0; i < process_file->nb_processes; i++)
@@ -33,7 +35,7 @@ int main(void)
     printf("Delay after hill climbing: %d\n", delay);
 
     memcpy(ordonnancement_ptr, ordonnancement_sorted, nb_processes * sizeof(int));
-    vnd(ordonnancement_ptr, processes, nb_processes, 100000);
+    vnd(ordonnancement_ptr, processes, nb_processes);
     delay = sum_total_delay(processes, nb_processes, ordonnancement_ptr);
     printf("Delay after vnd: %d\n", delay);
 

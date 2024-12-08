@@ -27,7 +27,7 @@ void experiment(process_t *processes, int nb_processes, int optimal_solution)
    printf("Hill Climbing delay: %d, ratio: %lf\n", hill_climbing_delay, hill_climbing_ratio);
 
    memcpy(ordonnancement_ptr, ordonnancement_sorted, nb_processes * sizeof(int));
-   vnd(ordonnancement_ptr, processes, nb_processes, 100000);
+   vnd(ordonnancement_ptr, processes, nb_processes);
    int vnd_delay = sum_total_delay(processes, nb_processes, ordonnancement_ptr);
    double vnd_ratio = (double)vnd_delay / (double)optimal_solution;
    printf("VND delay: %d, ratio: %lf\n", vnd_delay, vnd_ratio);

@@ -1,6 +1,6 @@
 #include "process.h"
 
-// Functions used in quicksort to make constructive heuristics, but not useful now
+// Functions used in the beginning in quicksort to make constructive heuristics, but not useful now
 // double limit_time_value_function(process_t *process)
 // {
 //     return process->limit_time;
@@ -79,20 +79,6 @@ void constructive_heuristique(int *ordonnancement, process_t *processes, int nb_
       ordonnancement[i] = index;
    }
 }
-
-// Function used with quicksort to make constructive heuristique
-// void test(process_t *processes, int nb_processes, value_function func)
-// {
-//    int ordonnancement_constructive_heuristique[nb_processes];
-//    int *ordonnancement_constructive_heuristique_ptr = ordonnancement_constructive_heuristique;
-//    quicksort(processes, 0, nb_processes - 1, func);
-//    for (int i = 0; i < nb_processes; i++)
-//    {
-//       ordonnancement_constructive_heuristique[i] = i;
-//    }
-//    int delay = sum_total_delay(processes, nb_processes, ordonnancement_constructive_heuristique_ptr);
-//    printf("Delay: %d\n", delay);
-// }
 
 int **generate_neighbors(int *ordonnancement, int nb_processes, swap_function swap_func)
 {
@@ -176,14 +162,37 @@ int *get_best_neighbor_and_free(int **neighbors, process_t *processes, int nb_pr
    return best_neighbor;
 }
 
-void vnd(int *current_ordonnancement, process_t *processes, int nb_processes, int k)
+// Functions used for the generation of different neighborhoods, by order of small to big perturbation
+// swap_function swap_functions[] = {swap_i_and_i_plus_1,
+//                                   swap_i_and_middle,
+//                                   swap_i_and_i_plus_nb_processes_div_2,
+//                                   shift_left_lasts_i,
+//                                   shift_left,
+//                                   shift_right,
+//                                   swap_sub_list_nb_processes_per_4,
+//                                   swap_random_nb_processes_per_4,
+//                                   swap_symetric,
+//                                   swap_random};
+
+swap_function swap_functions[] = {
+    swap_i_and_i_plus_1,
+    swap_i_and_middle,
+    swap_symetric,
+    swap_random_nb_processes_per_4,
+    swap_random,
+    swap_sub_list_nb_processes_per_4,
+};
+
+void vnd(int *current_ordonnancement, process_t *processes, int nb_processes)
 {
+   int nb_swap_function = sizeof(swap_functions) / sizeof(swap_function);
    int i = 0;
    int current_delay = sum_total_delay(processes, nb_processes, current_ordonnancement);
-   while (i < k)
+   while (i < nb_swap_function)
    {
-      int **neighbors = generate_neighbors(current_ordonnancement, nb_processes, swap_i_and_middle);
+      int **neighbors = generate_neighbors(current_ordonnancement, nb_processes, swap_functions[i]);
       int *best_neighbor = get_best_neighbor_and_free(neighbors, processes, nb_processes);
+      hill_climbing(best_neighbor, processes, nb_processes);
       int neighbor_delay = sum_total_delay(processes, nb_processes, best_neighbor);
       if (neighbor_delay < current_delay)
       {
@@ -197,26 +206,4 @@ void vnd(int *current_ordonnancement, process_t *processes, int nb_processes, in
       }
       free(best_neighbor);
    }
-}
-
-int *perturb_solution(int *ordonnancement, int nb_processes)
-{
-   int *perturbed = malloc(nb_processes * sizeof(int));
-   memcpy(perturbed, ordonnancement, nb_processes * sizeof(int));
-
-   // Exemple : Échanger deux éléments aléatoires
-   int i = rand() % nb_processes;
-   int j = rand() % nb_processes;
-   if (i != j)
-   {
-      int temp = perturbed[i];
-      perturbed[i] = perturbed[j];
-      perturbed[j] = temp;
-   }
-   else
-   {
-      free(perturbed);
-      return perturb_solution(ordonnancement, nb_processes);
-   }
-   return perturbed;
 }

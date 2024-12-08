@@ -40,4 +40,4 @@ experiments: dir $(OBJECTS_DIR)
 	gnuplot experiments/curves.gnu
 
 clean:
-	rm -rf $(MAIN_OUTPUT) $(BUILD_DIR)
+	rm -rf $(MAIN_OUTPUT) $(EXPERIMENTS_OUTPUT) $(BUILD_DIR)
