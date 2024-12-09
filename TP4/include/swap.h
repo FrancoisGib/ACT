@@ -18,5 +18,6 @@ void swap_random_nb_processes_per_4(int *ordonnancement, int *sorted_ordonnancem
 void shift_left_lasts_i(int *ordonnancement, int *sorted_ordonnancement, int nb_processes, int i);
 void swap_sub_list(int *ordonnancement, int *sorted_ordonnancement, int nb_processes, int i);
 void swap_i_and_i_plus_1_three_times(int *ordonnancement, int *sorted_ordonnancement, int nb_processes, int i);
+void swap_i_and_i_plus_1_five_times(int *ordonnancement, int *sorted_ordonnancement, int nb_processes, int i);
 
 #endif // INCLUDE_SWAP_H

@@ -10,4 +10,5 @@ set xlabel "experimentations data"
 plot 'experiments/delay.dat' using 1:2 smooth frequency w lines title "Constructive heuristic", \
 'experiments/delay.dat' using 1:3 smooth frequency w lines title "Hill climbing", \
 'experiments/delay.dat' using 1:4 smooth frequency w lines title "VND", \
-'experiments/delay.dat' using 1:5 smooth frequency w lines title "Optimal solution";
+'experiments/delay.dat' using 1:5 smooth frequency w lines title "ILS", \
+'experiments/delay.dat' using 1:6 smooth frequency w lines title "Optimal solution";

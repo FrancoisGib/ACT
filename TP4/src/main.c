@@ -37,6 +37,11 @@ int main(void)
     delay = sum_total_delay(processes, nb_processes, ordonnancement);
     printf("Delay after vnd: %d\n", delay);
 
+    memcpy(ordonnancement, ordonnancement_sorted, nb_processes * sizeof(int));
+    ils(ordonnancement, processes, nb_processes);
+    delay = sum_total_delay(processes, nb_processes, ordonnancement);
+    printf("Delay after ils: %d\n", delay);
+
     free(processes);
     free(process_file);
     return 0;

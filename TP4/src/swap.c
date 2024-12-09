@@ -135,3 +135,16 @@ void swap_i_and_i_plus_1_three_times(int *ordonnancement, int *sorted_ordonnance
       }
    }
 }
+
+void swap_i_and_i_plus_1_five_times(int *ordonnancement, int *sorted_ordonnancement, int nb_processes, int i)
+{
+   for (int j = 0; j < 3; j++)
+   {
+      if (i + j + 1 < nb_processes)
+      {
+         int temp = ordonnancement[i + j];
+         ordonnancement[i + j] = ordonnancement[i + j + 1];
+         ordonnancement[i + j + 1] = temp;
+      }
+   }
+}

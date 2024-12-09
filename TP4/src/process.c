@@ -210,3 +210,58 @@ void vnd(int *current_ordonnancement, process_t *processes, int nb_processes)
       free(best_neighbor);
    }
 }
+
+static int accept_count;
+
+void perturbation(int *current_ordonnancement, process_t *processes, int nb_processes, int k)
+{
+   int sorted_ordonnancement[nb_processes];
+   for (int i = 0; i < nb_processes; i++)
+   {
+      int found = 0;
+      int j = 0;
+      while (!found && j < nb_processes)
+      {
+         if (current_ordonnancement[j] == i)
+         {
+            sorted_ordonnancement[i] = j;
+            found = 1;
+         }
+         j++;
+      }
+   }
+   // swap_symetric(current_ordonnancement, sorted_ordonnancement, nb_processes, k);
+   swap_i_and_i_plus_1_three_times(current_ordonnancement, sorted_ordonnancement, nb_processes, k);
+}
+
+int accept(int *current_ordonnancement, process_t *processes, int nb_processes)
+{
+   accept_count++;
+   return accept_count >= 10000;
+}
+
+void ils(int *current_ordonnancement, process_t *processes, int nb_processes)
+{
+   int i = 0;
+   int best_ordonnancement[nb_processes];
+   memcpy(best_ordonnancement, current_ordonnancement, nb_processes * sizeof(int));
+   int best_delay = sum_total_delay(processes, nb_processes, current_ordonnancement);
+   while (!accept(current_ordonnancement, processes, nb_processes))
+   {
+      int current_delay = sum_total_delay(processes, nb_processes, current_ordonnancement);
+      vnd(current_ordonnancement, processes, nb_processes);
+      if (current_delay < best_delay)
+      {
+         best_delay = current_delay;
+         memcpy(best_ordonnancement, current_ordonnancement, nb_processes * sizeof(int));
+      }
+      perturbation(current_ordonnancement, processes, nb_processes, i);
+      if (i >= nb_processes - 3)
+      {
+         i = 0;
+      }
+      i++;
+   }
+   memcpy(current_ordonnancement, best_ordonnancement, nb_processes * sizeof(int));
+   accept_count = 0;
+}

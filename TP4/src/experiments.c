@@ -32,12 +32,18 @@ void experiment(process_t *processes, int nb_processes, int optimal_solution)
    double vnd_ratio = (double)vnd_delay / (double)optimal_solution;
    printf("VND delay: %d, ratio: %lf\n", vnd_delay, vnd_ratio);
 
+   memcpy(ordonnancement, ordonnancement_sorted, nb_processes * sizeof(int));
+   ils(ordonnancement, processes, nb_processes);
+   int ils_delay = sum_total_delay(processes, nb_processes, ordonnancement);
+   double ils_ratio = (double)ils_delay / (double)optimal_solution;
+   printf("ILS delay: %d, ratio: %lf\n", ils_delay, ils_ratio);
+
    char buf[64];
-   sprintf(buf, "%d %d %d %d %d\n", file_index, constructive_delay, hill_climbing_delay, vnd_delay, optimal_solution);
+   sprintf(buf, "%d %d %d %d %d %d\n", file_index, constructive_delay, hill_climbing_delay, vnd_delay, ils_delay, optimal_solution);
    fwrite(buf, strlen(buf), 1, delay_file);
 
    memset(buf, 0, 64);
-   sprintf(buf, "%d %lf %lf %lf %lf\n", file_index, constructive_ratio, hill_climbing_ratio, vnd_ratio, 1.0);
+   sprintf(buf, "%d %lf %lf %lf %lf %lf\n", file_index, constructive_ratio, hill_climbing_ratio, vnd_ratio, ils_ratio, 1.0);
    fwrite(buf, strlen(buf), 1, ratio_file);
    file_index++;
 }
