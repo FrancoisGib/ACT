@@ -1,26 +1,5 @@
 #include "process.h"
 
-// Functions used in the beginning in quicksort to make constructive heuristics, but not useful now
-// double limit_time_value_function(process_t *process)
-// {
-//     return process->limit_time;
-// }
-
-// double weight_over_time_value_function(process_t *process)
-// {
-//     return (double)process->weight / (double)process->time;
-// }
-
-// double sum_delay_value_function(process_t *process)
-// {
-//     return (double)(process->limit_time * process->weight);
-// }
-
-// double weight_times_1_over_limit(process_t *process)
-// {
-//     return (double)((double)process->weight * (1 / (double)process->limit_time));
-// }
-
 int sum_total_delay(process_t *processes, int nb_processes, int *ordonnancement)
 {
    int delay = 0;
@@ -80,10 +59,16 @@ void constructive_heuristique(int *ordonnancement, process_t *processes, int nb_
    }
 }
 
-int **generate_neighbors(int *ordonnancement, int nb_processes, swap_function swap_func)
+typedef struct
 {
-   int nb_neighbors = nb_processes - 1;
-   int **neighbors = malloc(nb_neighbors * sizeof(int *));
+   int **neighbors;
+   int nb_neighbors;
+} neighbors_t;
+
+void generate_neighbors_swap(neighbors_t *neighbors_info, int *ordonnancement, int nb_processes, swap_function swap_func)
+{
+   neighbors_info->nb_neighbors = nb_processes - 1;
+   neighbors_info->neighbors = malloc(neighbors_info->nb_neighbors * sizeof(int *));
    int sorted_ordonnancement[nb_processes];
    // Sort tasks
    for (int i = 0; i < nb_processes; i++)
@@ -104,25 +89,70 @@ int **generate_neighbors(int *ordonnancement, int nb_processes, swap_function sw
    for (int i = 0; i < nb_processes - 1; i++)
    {
       int *neighbor = malloc(nb_processes * sizeof(int));
-      neighbors[i] = neighbor;
+      neighbors_info->neighbors[i] = neighbor;
       // Copy all tasks
       memcpy(neighbor, ordonnancement, nb_processes * sizeof(int));
       // Swap
       swap_func(neighbor, sorted_ordonnancement, nb_processes, i);
    }
-   return neighbors;
+}
+void generate_neighbors(neighbors_t *neighbors_info, int *ordonnancement, int nb_processes, swap_function swap_func)
+{
+   neighbors_info->nb_neighbors = nb_processes * nb_processes;
+
+   neighbors_info->neighbors = malloc(neighbors_info->nb_neighbors * sizeof(int *));
+
+   int neighbor_index = 0;
+
+   for (int i = 0; i < nb_processes; i++)
+   {
+      for (int j = 0; j < nb_processes; j++)
+      {
+         if (i == j)
+            continue;
+
+         int *new_neighbor = malloc(nb_processes * sizeof(int));
+         memcpy(new_neighbor, ordonnancement, nb_processes * sizeof(int));
+
+         // int temp = new_neighbor[i];
+         // new_neighbor[i] = new_neighbor[j];
+         // new_neighbor[j] = temp;
+         int sorted_ordonnancement[nb_processes];
+         // Sort tasks
+         for (int l = 0; l < nb_processes; l++)
+         {
+            int found = 0;
+            int k = 0;
+            while (!found && k < nb_processes)
+            {
+               if (ordonnancement[k] == l)
+               {
+                  sorted_ordonnancement[l] = k;
+                  found = 1;
+               }
+               k++;
+            }
+         }
+         swap_func(new_neighbor, sorted_ordonnancement, nb_processes, i);
+
+         neighbors_info->neighbors[neighbor_index] = new_neighbor;
+         neighbor_index++;
+      }
+   }
+   neighbors_info->nb_neighbors = neighbor_index - 1;
+   // printf("%d\n", neighbor_index);
 }
 
 void hill_climbing(int *current_ordonnancement, process_t *processes, int nb_processes)
 {
-   int **neighbors = generate_neighbors(current_ordonnancement, nb_processes, swap_i_and_i_plus_1);
-   int nb_ordonnancements = nb_processes - 1;
+   neighbors_t neighbors_info;
+   generate_neighbors_swap(&neighbors_info, current_ordonnancement, nb_processes, swap_i_and_i_plus_1);
    int current_ordonnancement_delay = sum_total_delay(processes, nb_processes, current_ordonnancement);
    int best_delay = current_ordonnancement_delay;
    int best_ordonnancement_index = -1;
-   for (int i = 0; i < nb_ordonnancements; i++)
+   for (int i = 0; i < neighbors_info.nb_neighbors; i++)
    {
-      int delay = sum_total_delay(processes, nb_processes, neighbors[i]);
+      int delay = sum_total_delay(processes, nb_processes, neighbors_info.neighbors[i]);
       if (delay < best_delay)
       {
          best_delay = delay;
@@ -132,24 +162,23 @@ void hill_climbing(int *current_ordonnancement, process_t *processes, int nb_pro
 
    if (best_ordonnancement_index != -1)
    {
-      memcpy(current_ordonnancement, neighbors[best_ordonnancement_index], nb_processes * sizeof(int));
+      memcpy(current_ordonnancement, neighbors_info.neighbors[best_ordonnancement_index], nb_processes * sizeof(int));
    }
 
-   for (int i = 0; i < nb_ordonnancements; i++)
+   for (int i = 0; i < neighbors_info.nb_neighbors; i++)
    {
-      free(neighbors[i]);
+      free(neighbors_info.neighbors[i]);
    }
-   free(neighbors);
+   free(neighbors_info.neighbors);
 }
 
-int *get_best_neighbor_and_free(int **neighbors, process_t *processes, int nb_processes)
+int *get_best_neighbor_and_free(neighbors_t *neighbors_info, process_t *processes, int nb_processes)
 {
-   int nb_neighbors = nb_processes - 1;
    int best_delay = INT_MAX;
    int *best_neighbor = malloc(nb_processes * sizeof(int));
-   for (int i = 0; i < nb_neighbors; i++)
+   for (int i = 0; i < neighbors_info->nb_neighbors; i++)
    {
-      int *neighbor = neighbors[i];
+      int *neighbor = neighbors_info->neighbors[i];
       int neighbor_delay = sum_total_delay(processes, nb_processes, neighbor);
       if (neighbor_delay < best_delay)
       {
@@ -158,7 +187,7 @@ int *get_best_neighbor_and_free(int **neighbors, process_t *processes, int nb_pr
       }
       free(neighbor);
    }
-   free(neighbors);
+   free(neighbors_info->neighbors);
    return best_neighbor;
 }
 
@@ -193,8 +222,9 @@ void vnd(int *current_ordonnancement, process_t *processes, int nb_processes)
    int current_delay = sum_total_delay(processes, nb_processes, current_ordonnancement);
    while (i < nb_swap_function)
    {
-      int **neighbors = generate_neighbors(current_ordonnancement, nb_processes, swap_functions[i]);
-      int *best_neighbor = get_best_neighbor_and_free(neighbors, processes, nb_processes);
+      neighbors_t neighbors_info;
+      generate_neighbors_swap(&neighbors_info, current_ordonnancement, nb_processes, swap_functions[i]);
+      int *best_neighbor = get_best_neighbor_and_free(&neighbors_info, processes, nb_processes);
       hill_climbing(best_neighbor, processes, nb_processes);
       int neighbor_delay = sum_total_delay(processes, nb_processes, best_neighbor);
       if (neighbor_delay < current_delay)
@@ -234,13 +264,9 @@ void perturbation(int *current_ordonnancement, process_t *processes, int nb_proc
 typedef int (*accept_function)(int *, process_t *, int);
 
 int n_iter = 1000;
-void accept_n_iterations_gen(int n)
-{
-   n_iter = n;
-}
-
 int accept_count = 0;
-int accept_n_iterations(int *current_ordonnancement, process_t *processes, int nb_processes)
+
+int accept_n_iterations_impl(int *current_ordonnancement, process_t *processes, int nb_processes)
 {
    accept_count++;
    if (accept_count >= n_iter)
@@ -249,6 +275,12 @@ int accept_n_iterations(int *current_ordonnancement, process_t *processes, int n
       return 1;
    }
    return 0;
+}
+
+accept_function accept_n_iterations(int n)
+{
+   n_iter = n;
+   return accept_n_iterations_impl;
 }
 
 int n_sec = 10;
@@ -276,16 +308,15 @@ int accept_n_sec(int *current_ordonnancement, process_t *processes, int nb_proce
 
 void ils(int *current_ordonnancement, process_t *processes, int nb_processes)
 {
-   accept_n_iterations_gen(1000);
-   accept_function accept = accept_n_sec;
+   accept_function accept = accept_n_iterations(10000);
    int i = 0;
    int best_ordonnancement[nb_processes];
    memcpy(best_ordonnancement, current_ordonnancement, nb_processes * sizeof(int));
    int best_delay = sum_total_delay(processes, nb_processes, current_ordonnancement);
    while (!accept(current_ordonnancement, processes, nb_processes))
    {
-      int current_delay = sum_total_delay(processes, nb_processes, current_ordonnancement);
       vnd(current_ordonnancement, processes, nb_processes);
+      int current_delay = sum_total_delay(processes, nb_processes, current_ordonnancement);
       if (current_delay < best_delay)
       {
          best_delay = current_delay;

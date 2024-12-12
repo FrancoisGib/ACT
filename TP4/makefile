@@ -39,6 +39,7 @@ experiments: dir $(OBJECTS_DIR)
 	./experiments_main
 	gnuplot experiments/delay.gnu
 	gnuplot experiments/ratio.gnu
+	gnuplot experiments/constructive_heuristique.gnu
 
 clean:
 	rm -rf $(MAIN_OUTPUT) $(EXPERIMENTS_OUTPUT) $(BUILD_DIR) **/*.dat

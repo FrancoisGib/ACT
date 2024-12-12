@@ -1,5 +1,26 @@
 #include "quicksort.h"
 
+// Functions used in the beginning in quicksort to make constructive heuristics, but not useful now
+double limit_time_value_function(process_t *process)
+{
+    return process->limit_time;
+}
+
+double weight_over_time_value_function(process_t *process)
+{
+    return (double)process->weight / (double)process->time;
+}
+
+double sum_delay_value_function(process_t *process)
+{
+    return (double)(process->limit_time * process->weight);
+}
+
+double weight_times_1_over_limit(process_t *process)
+{
+    return (double)((double)process->weight * (1 / (double)process->limit_time));
+}
+
 void swap_processes(process_t *a, process_t *b)
 {
     process_t temp = *a;
