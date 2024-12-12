@@ -14,7 +14,7 @@ typedef struct
 #include <string.h>
 #include <limits.h>
 #include "quicksort.h"
-#include "swap.h"
+#include "swap_functions.h"
 #include "lib.h"
 
 #define MAX(x, y) (x) > (y) ? (x) : (y)

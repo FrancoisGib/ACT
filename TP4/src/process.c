@@ -211,8 +211,6 @@ void vnd(int *current_ordonnancement, process_t *processes, int nb_processes)
    }
 }
 
-static int accept_count;
-
 void perturbation(int *current_ordonnancement, process_t *processes, int nb_processes, int k)
 {
    int sorted_ordonnancement[nb_processes];
@@ -230,18 +228,56 @@ void perturbation(int *current_ordonnancement, process_t *processes, int nb_proc
          j++;
       }
    }
-   // swap_symetric(current_ordonnancement, sorted_ordonnancement, nb_processes, k);
-   swap_i_and_i_plus_1_three_times(current_ordonnancement, sorted_ordonnancement, nb_processes, k);
+   swap_symetric(current_ordonnancement, sorted_ordonnancement, nb_processes, k);
 }
 
-int accept(int *current_ordonnancement, process_t *processes, int nb_processes)
+typedef int (*accept_function)(int *, process_t *, int);
+
+int n_iter = 1000;
+void accept_n_iterations_gen(int n)
+{
+   n_iter = n;
+}
+
+int accept_count = 0;
+int accept_n_iterations(int *current_ordonnancement, process_t *processes, int nb_processes)
 {
    accept_count++;
-   return accept_count >= 10000;
+   if (accept_count >= n_iter)
+   {
+      accept_count = 0;
+      return 1;
+   }
+   return 0;
+}
+
+int n_sec = 10;
+void accept_n_sec_gen(int n)
+{
+   n_sec = n;
+}
+
+clock_t accept_time = 0;
+int accept_n_sec(int *current_ordonnancement, process_t *processes, int nb_processes)
+{
+   if (accept_time == 0)
+   {
+      accept_time = clock();
+   }
+   clock_t current_time = clock();
+   int time_used = ((current_time - accept_time)) / CLOCKS_PER_SEC;
+   if (time_used >= n_sec)
+   {
+      accept_time = 0;
+      return 1;
+   }
+   return 0;
 }
 
 void ils(int *current_ordonnancement, process_t *processes, int nb_processes)
 {
+   accept_n_iterations_gen(1000);
+   accept_function accept = accept_n_sec;
    int i = 0;
    int best_ordonnancement[nb_processes];
    memcpy(best_ordonnancement, current_ordonnancement, nb_processes * sizeof(int));
@@ -263,5 +299,4 @@ void ils(int *current_ordonnancement, process_t *processes, int nb_processes)
       i++;
    }
    memcpy(current_ordonnancement, best_ordonnancement, nb_processes * sizeof(int));
-   accept_count = 0;
 }

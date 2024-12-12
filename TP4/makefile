@@ -9,7 +9,7 @@ LFLAGS = # -lm
 INCLUDE = -I./include
 
 SOURCES = quicksort \
-			 swap \
+			 swap_functions \
 			 process \
 			 lib
 
