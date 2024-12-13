@@ -113,10 +113,6 @@ void generate_neighbors(neighbors_t *neighbors_info, int *ordonnancement, int nb
 
          int *new_neighbor = malloc(nb_processes * sizeof(int));
          memcpy(new_neighbor, ordonnancement, nb_processes * sizeof(int));
-
-         // int temp = new_neighbor[i];
-         // new_neighbor[i] = new_neighbor[j];
-         // new_neighbor[j] = temp;
          int sorted_ordonnancement[nb_processes];
          // Sort tasks
          for (int l = 0; l < nb_processes; l++)
@@ -140,13 +136,12 @@ void generate_neighbors(neighbors_t *neighbors_info, int *ordonnancement, int nb
       }
    }
    neighbors_info->nb_neighbors = neighbor_index - 1;
-   // printf("%d\n", neighbor_index);
 }
 
-void hill_climbing(int *current_ordonnancement, process_t *processes, int nb_processes)
+void hill_climbing(int *current_ordonnancement, process_t *processes, int nb_processes, swap_function swap_func)
 {
    neighbors_t neighbors_info;
-   generate_neighbors_swap(&neighbors_info, current_ordonnancement, nb_processes, swap_i_and_i_plus_1);
+   generate_neighbors_swap(&neighbors_info, current_ordonnancement, nb_processes, swap_func);
    int current_ordonnancement_delay = sum_total_delay(processes, nb_processes, current_ordonnancement);
    int best_delay = current_ordonnancement_delay;
    int best_ordonnancement_index = -1;
@@ -208,11 +203,11 @@ int *get_best_neighbor_and_free(neighbors_t *neighbors_info, process_t *processe
 
 swap_function swap_functions[] = {
     swap_i_and_i_plus_1,
-    swap_i_and_middle,               // almost no impact
-    swap_symetric,                   // more impact
-    swap_random_nb_processes_per_4,  // more impact
-    swap_random,                     // big impact
-    swap_i_and_i_plus_1_three_times, // last, just to get near neighborhoods when others don't change anything, with tests 3 is the best in general
+    swap_i_and_middle,
+    swap_symetric,
+    swap_random_nb_processes_per_4,
+    swap_random,
+    swap_i_and_i_plus_1_three_times,
 };
 
 void vnd(int *current_ordonnancement, process_t *processes, int nb_processes)
@@ -225,7 +220,7 @@ void vnd(int *current_ordonnancement, process_t *processes, int nb_processes)
       neighbors_t neighbors_info;
       generate_neighbors_swap(&neighbors_info, current_ordonnancement, nb_processes, swap_functions[i]);
       int *best_neighbor = get_best_neighbor_and_free(&neighbors_info, processes, nb_processes);
-      hill_climbing(best_neighbor, processes, nb_processes);
+      hill_climbing(best_neighbor, processes, nb_processes, swap_i_and_i_plus_1);
       int neighbor_delay = sum_total_delay(processes, nb_processes, best_neighbor);
       if (neighbor_delay < current_delay)
       {
@@ -241,7 +236,7 @@ void vnd(int *current_ordonnancement, process_t *processes, int nb_processes)
    }
 }
 
-void perturbation(int *current_ordonnancement, process_t *processes, int nb_processes, int k)
+void perturbation(int *current_ordonnancement, process_t *processes, int nb_processes, int k, swap_function swap_func)
 {
    int sorted_ordonnancement[nb_processes];
    for (int i = 0; i < nb_processes; i++)
@@ -258,7 +253,7 @@ void perturbation(int *current_ordonnancement, process_t *processes, int nb_proc
          j++;
       }
    }
-   swap_symetric(current_ordonnancement, sorted_ordonnancement, nb_processes, k);
+   swap_func(current_ordonnancement, sorted_ordonnancement, nb_processes, k);
 }
 
 typedef int (*accept_function)(int *, process_t *, int);
@@ -306,7 +301,7 @@ int accept_n_sec(int *current_ordonnancement, process_t *processes, int nb_proce
    return 0;
 }
 
-void ils(int *current_ordonnancement, process_t *processes, int nb_processes)
+void ils(int *current_ordonnancement, process_t *processes, int nb_processes, swap_function swap_func)
 {
    accept_function accept = accept_n_iterations(10000);
    int i = 0;
@@ -322,11 +317,7 @@ void ils(int *current_ordonnancement, process_t *processes, int nb_processes)
          best_delay = current_delay;
          memcpy(best_ordonnancement, current_ordonnancement, nb_processes * sizeof(int));
       }
-      perturbation(current_ordonnancement, processes, nb_processes, i);
-      if (i >= nb_processes - 3)
-      {
-         i = 0;
-      }
+      perturbation(current_ordonnancement, processes, nb_processes, i % nb_processes, swap_func);
       i++;
    }
    memcpy(current_ordonnancement, best_ordonnancement, nb_processes * sizeof(int));

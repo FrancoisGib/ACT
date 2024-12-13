@@ -11,7 +11,8 @@ INCLUDE = -I./include
 SOURCES = quicksort \
 			 swap_functions \
 			 process \
-			 lib
+			 lib  \
+			 linked_list
 
 OBJECTS = $(addsuffix .o, $(SOURCES))
 
@@ -39,7 +40,9 @@ experiments: dir $(OBJECTS_DIR)
 	./experiments_main
 	gnuplot experiments/delay.gnu
 	gnuplot experiments/ratio.gnu
-	gnuplot experiments/constructive_heuristique.gnu
+	gnuplot experiments/constructive_heuristic.gnu
+	gnuplot experiments/hill_climbing.gnu
+	gnuplot experiments/ils.gnu
 
 clean:
 	rm -rf $(MAIN_OUTPUT) $(EXPERIMENTS_OUTPUT) $(BUILD_DIR) **/*.dat

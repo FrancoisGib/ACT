@@ -1,4 +1,4 @@
-set terminal png size 800,500 enhanced background rgb 'white
+set terminal png size 1920,1080 enhanced background rgb 'white
 set output 'experiments/ratio.png'
 
 set title 'Algorithms ratio'

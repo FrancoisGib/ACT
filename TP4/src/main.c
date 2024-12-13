@@ -28,7 +28,7 @@ int main(void)
     printf("Delay with constructive heuristic (sort with delay): %d\n", delay);
 
     memcpy(ordonnancement, ordonnancement_sorted, nb_processes * sizeof(int));
-    hill_climbing(ordonnancement, processes, nb_processes);
+    hill_climbing(ordonnancement, processes, nb_processes, swap_i_and_i_plus_1);
     delay = sum_total_delay(processes, nb_processes, ordonnancement);
     printf("Delay after hill climbing: %d\n", delay);
 
@@ -38,7 +38,7 @@ int main(void)
     printf("Delay after vnd: %d\n", delay);
 
     memcpy(ordonnancement, ordonnancement_sorted, nb_processes * sizeof(int));
-    ils(ordonnancement, processes, nb_processes);
+    ils(ordonnancement, processes, nb_processes, swap_i_and_i_plus_1_three_times);
     delay = sum_total_delay(processes, nb_processes, ordonnancement);
     printf("Delay after ils: %d\n", delay);
 
